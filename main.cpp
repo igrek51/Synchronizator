@@ -4,19 +4,14 @@ using namespace std;
 
 LRESULT CALLBACK windowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-const char *progName = "Igrek Synchronizator";
-
-App *app = new App(560,380,"1.4.9",11);
-
 LRESULT CALLBACK wndproc_new(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam){
 	return app->subclass_wndproc_new(hwnd, message, wParam, lParam);
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow){
-	app->setInstance(&hInstance);
-	app->windowProc = windowProc;
-	app->wndproc_new = wndproc_new;
-	app->get_argv(lpCmdLine);
+	App::geti()->hInst = &hInstance;
+    App::geti()->windowProc = windowProc;
+    App::geti()->wndproc_new = wndproc_new;
 	WNDCLASS windowClass;
 	windowClass.lpfnWndProc = windowProc;
 	windowClass.style       = CS_HREDRAW | CS_VREDRAW;
@@ -26,15 +21,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	windowClass.hbrBackground=(HBRUSH)COLOR_BTNSHADOW;
 	windowClass.cbClsExtra  = 0;
 	windowClass.cbWndExtra  = 0;
-	windowClass.lpszClassName = progName;
+	windowClass.lpszClassName = Config::geti()->program_name.c_str();
 	windowClass.lpszMenuName  = NULL;
 	if(!RegisterClass(&windowClass)){
-		app->message("RegisterClass failed!");
+		IO::geti()->critical_error("RegisterClass failed!");
 		return 0;
 	}
-	HWND window = CreateWindowEx(0,progName,progName,WS_OVERLAPPEDWINDOW,CW_USEDEFAULT,CW_USEDEFAULT,app->window_w+16,app->window_h+38,NULL,NULL,hInstance,NULL);
+	HWND window = CreateWindowEx(0, Config::geti()->program_name.c_str(), Config::geti()->program_name.c_str(), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, Config::geti()->window_w+16, Config::geti()->window_h+38, NULL, NULL, hInstance, NULL);
 	if(!window){
-		app->message("window NULL pointer!");
+		IO::geti()->critical_error("window NULL pointer!");
 		return 0;
 	}
 	ShowWindow(window,nCmdShow);
@@ -49,22 +44,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 LRESULT CALLBACK windowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam){
 	switch(message){
-		case WM_CREATE:{
-			app->wm_create(&hwnd);
-		}break;
-		case WM_COMMAND:{
-			app->wm_command(wParam,lParam);
-		}break;
-		case WM_SIZE:{
-			app->wm_resize();
-		}break;
-		case WM_MOVE:{
-			app->wm_move();
-		}break;
-		case WM_DESTROY:{
-			delete app;
-			return 0;
-		}break;
+        case WM_CREATE:{
+            App::geti()->event_init(&hwnd);
+        }break;
+        case WM_COMMAND:{
+            App::geti()->event_button(wParam, lParam);
+        }break;
+        case WM_SIZE:{
+            App::geti()->event_resize();
+        }break;
+        case WM_MOVE:{
+            App::geti()->event_move();
+        }break;
+        case WM_DESTROY:{
+            delete App::geti();
+            return 0;
+        }break;
 	}
 	return DefWindowProc(hwnd, message, wParam, lParam);
 }

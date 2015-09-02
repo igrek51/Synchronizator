@@ -1,11 +1,11 @@
 #include "app.h"
 
 int App::listbox_count(){
-	return SendMessage(hctrl[8],LB_GETCOUNT,0,0);
+	return SendMessage(Controls::geti()->find("listbox"),LB_GETCOUNT,0,0);
 }
 
 void App::listbox_delete(int nr){
-	SendMessage(hctrl[8],LB_DELETESTRING,nr,0);
+	SendMessage(Controls::geti()->find("listbox"),LB_DELETESTRING,nr,0);
 }
 
 void App::listbox_clear(){
@@ -13,29 +13,31 @@ void App::listbox_clear(){
 }
 
 void App::listbox_add(string s){
-	SendMessage(hctrl[8],LB_ADDSTRING,NULL,(LPARAM)s.c_str());
+	SendMessage(Controls::geti()->find("listbox"),LB_ADDSTRING,NULL,(LPARAM)s.c_str());
 }
 
 int App::listbox_current(){
-	int ret = SendMessage(hctrl[8],LB_GETCURSEL,0,0);
+	int ret = SendMessage(Controls::geti()->find("listbox"),LB_GETCURSEL,0,0);
 	if(ret==LB_ERR) return -1;
 	return ret;
 }
 
 void App::listbox_select(int nr){
 	if(nr>=listbox_count()) nr=-1;
-	SendMessage(hctrl[8],LB_SETCURSEL,nr,0);
+	SendMessage(Controls::geti()->find("listbox"),LB_SETCURSEL,nr,0);
 }
 
 void App::show_lista(){
 	listbox_clear();
-	HDC dcList = GetDC(hctrl[8]);
+	HDC dcList = GetDC(Controls::geti()->find("listbox"));
 	SIZE textSize;
-	HFONT hF = (HFONT)SendMessage(hctrl[8],WM_GETFONT,0,0);
+	HFONT hF = (HFONT)SendMessage(Controls::geti()->find("listbox"),WM_GETFONT,0,0);
 	HGDIOBJ hOld = SelectObject(dcList,hF);
+
+
 	if(listalista==NULL) return;
 	lista *pom = listalista;
-	int nr=1;
+	int nr = 1;
 	int max_w = 0;
 	while(pom!=NULL){
 		ss_clear(ss);
@@ -48,8 +50,8 @@ void App::show_lista(){
 		pom=pom->next;
 	}
 	SelectObject(dcList,hOld);
-	ReleaseDC(hctrl[8],dcList);
-	SendMessage(hctrl[8],LB_SETHORIZONTALEXTENT,max_w,NULL);
+	ReleaseDC(Controls::geti()->find("listbox"),dcList);
+	SendMessage(Controls::geti()->find("listbox"),LB_SETHORIZONTALEXTENT,max_w,NULL);
 }
 
 void App::listbox_clicked(){

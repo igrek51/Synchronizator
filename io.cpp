@@ -1,112 +1,127 @@
+#include "io.h"
+#include "config.h"
+#include "files.h"
+#include "controls.h"
+#include "strings.h"
 #include "app.h"
+
 #include <fstream>
 #include <ctime>
+#include <windows.h>
 
-void App::clear_file(string filename){
-	fstream plik;
-	plik.open(filename.c_str(),fstream::out|fstream::trunc);
-	plik.close();
+IO* IO::instance = NULL;
+
+IO* IO::geti(){
+    if(instance == NULL){
+        instance = new IO();
+    }
+    return instance;
 }
 
-void App::log(string l){
-	if(log_enabled!=1) return;
-	fstream plik;
-	plik.open("log.txt",fstream::out|fstream::app);
-	plik<<time(NULL)<<" - "<<l<<endl;
-	plik.close();
+IO* IO::i(){
+    return geti();
 }
 
-void App::log(int l){
-	ss_clear(ss);
-	ss<<l;
-	log(ss.str());
+IO::IO(){
+    instance = this;
+    last_echo = "";
+    repeated_echo = 0;
+    clock_last = clock();
 }
 
-void App::echo(string s){
-	SetWindowText(hctrl[0],s.c_str());
-	text_vcenter();
-	UpdateWindow(hwnd);
+
+void IO::clear_log(){
+    if(!Config::geti()->log_enabled) return;
+    clear_file(Config::geti()->log_filename);
+}
+
+void IO::delete_log(){
+    if(file_exists(Config::geti()->log_filename)){
+        DeleteFile(Config::geti()->log_filename.c_str());
+    }
+}
+
+void IO::log(string l){
+    if(!Config::geti()->log_enabled) return;
+    if(!file_exists(Config::geti()->log_filename)) clear_log();
+    fstream plik;
+    plik.open(Config::geti()->log_filename.c_str(), fstream::out|fstream::app);
+    if(!plik.good()){
+        plik.close();
+        message_box("B³¹d", "B³¹d zapisu do pliku dziennika: "+Config::geti()->log_filename);
+        return;
+    }
+    plik<<get_time()<<" - "<<l<<endl;
+    plik.close();
+}
+
+void IO::log(int l){
+    stringstream ss;
+    ss<<l;
+    log(ss.str());
+}
+
+void IO::log(string s, int l){
+    stringstream ss;
+    ss<<s<<": "<<l;
+    log(ss.str());
+}
+
+void IO::error(string l, bool show_output){
+    if(show_output){
+        echo("[B£¥D!] - "+l);
+    }else{
+        log("[B£¥D!] - "+l);
+    }
+}
+
+void IO::critical_error(string l){
+    log("[B£¥D KRYTYCZNY!] - "+l);
+    message_box("B³¹d krytyczny", l);
+}
+
+
+void IO::echo(string s){
+    Controls::geti()->set_text(Config::geti()->output_control, s.c_str());
 	log(s);
+    App::geti()->text_vcenter();
 }
 
-void App::text_vcenter(){
-	int lines = SendMessage(hctrl[0],EM_GETLINECOUNT,0,0);
-	int height = fontsize*lines;
-	int ypos = (50-height)/2;
-	if(ypos<0) ypos=0;
-	if(height>52) height=52;
-	SetWindowPos(hctrl[0],HWND_BOTTOM,0,ypos,window_w,height,0);
+void IO::echo(int e){
+    stringstream ss;
+    ss<<e;
+    echo(ss.str());
 }
 
-void App::echo(){
-	echo(ss.str());
-	ss_clear(ss);
+void IO::message_box(string title, string message){
+    if(message.length()==0){
+        message = title;
+        title = "Wiadomoœæ";
+    }
+    MessageBox(NULL, message.c_str(), title.c_str(), MB_OK|MB_ICONINFORMATION);
 }
 
-void App::echo(int e){
-	ss_clear(ss);
-	ss<<e;
-	echo(ss.str());
+string get_time(){
+    time_t rawtime;
+    struct tm *timeinfo;
+    time(&rawtime);
+    timeinfo = localtime(&rawtime);
+    stringstream ss;
+    if(timeinfo->tm_hour<10) ss<<"0";
+    ss<<timeinfo->tm_hour<<":";
+    if(timeinfo->tm_min<10) ss<<"0";
+    ss<<timeinfo->tm_min<<":";
+    if(timeinfo->tm_sec<10) ss<<"0";
+    ss<<timeinfo->tm_sec<<", ";
+    if(timeinfo->tm_mday<10) ss<<"0";
+    ss<<timeinfo->tm_mday<<".";
+    if(timeinfo->tm_mon+1<10) ss<<"0";
+    ss<<timeinfo->tm_mon+1<<".";
+    ss<<timeinfo->tm_year+1900;
+    return ss.str();
 }
 
-bool App::file_exists(string name){
-	ifstream plik(name.c_str());
-	if(plik.good()){
-		plik.close();
-		return true;
-	}else{
-		plik.close();
-		return false;
-	}
-}
-
-void App::ss_clear(stringstream &sstream){
+void ss_clear(stringstream &sstream){
 	sstream.str("");
 	sstream.clear();
-}
-
-void App::get_argv(LPSTR lpCmdLine){
-	string arg=(char*)lpCmdLine;
-	if(arg.length()==0){
-		argc=0;
-		argv=NULL;
-	}else{
-		bool cudzyslow=0;
-		argc=1;
-		for(unsigned int i=0; i<arg.length(); i++){
-			if(arg[i]=='\"') cudzyslow=!cudzyslow;
-			if(arg[i]==' '&&!cudzyslow) argc++;
-		}
-		argv = new string [argc];
-		if(argc==1){
-			argv[0]=arg;
-		}else{
-			int spaces=0;
-			cudzyslow=0;
-			for(int i=0; i<argc; i++) argv[i]="";
-			for(unsigned int i=0; i<arg.length(); i++){
-				if(arg[i]=='\"') cudzyslow=!cudzyslow;
-				if(arg[i]==' '&&!cudzyslow){
-					spaces++;
-				}else{
-					argv[spaces]+=arg[i];
-				}
-			}
-		}
-	}
-	ss_clear(ss);
-	ss<<"Parametry ["<<argc<<"]: ";
-	for(int i=0; i<argc; i++) ss<<argv[i]<<" ";
-	log(ss.str());
-}
-
-bool App::is_arg(string par){
-	for(int i=0; i<argc; i++){
-		if(argv[i]==par) return true;
-	}
-	return false;
-}
-
-void App::message(string m){
-	MessageBox(NULL,m.c_str(),"Info",MB_OK|MB_ICONINFORMATION);
 }

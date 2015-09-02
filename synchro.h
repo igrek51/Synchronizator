@@ -1,9 +1,16 @@
 #ifndef SYNCHRO_H
 #define SYNCHRO_H
 
-#include "lista.h"
+#include "task.h"
 
 using namespace std;
+
+class SynchroPath {
+    SynchroPath(string source, string dest, bool content_check);
+    string source;
+    string dest;
+    bool content_check;
+};
 
 string* get_drives(int &nr);
 string list_drives();

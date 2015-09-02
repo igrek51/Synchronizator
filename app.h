@@ -6,19 +6,29 @@
 #include <sstream>
 
 #include "dir.h"
-#include "lista.h"
+#include "task.h"
 #include "history.h"
+#include "config.h"
+#include "controls.h"
+#include "io.h"
 
 using namespace std;
 
 class App{
+private:
+    static App* instance;
+    App(int w, int h, string version, int ctrls = 0);
 public:
-	App(int w, int h, string version, int ctrls = 0);
+    static App* geti();
 	~App();
+    HWND main_window;
+	HINSTANCE* hInst;
+    //historia
+    History* historia;
+
+
 	HWND *hctrl;
 	void setInstance(HINSTANCE *hInst);
-	int window_w, window_h;
-	string version;
 	//io
 	string *argv;
 	int argc;
@@ -61,7 +71,7 @@ public:
 	//synchro
 	string drive;
 	string select_drive();
-	void dirlist_cmp(string head1name, string head2name, lista **listaa, bool content_check, double prog_from, double prog_to);
+	void dirlist_cmp(string head1name, string head2name, vector<Task *> *tasks, bool content_check, double prog_from, double prog_to);
 	//program
 	void set_progress(double p);
 	void synchroman_init();
@@ -95,8 +105,7 @@ public:
 	volatile bool thread_active;
 private:
 	int ctrls_num;
-	HWND hwnd;
-	HINSTANCE* hInst;
+
 };
 
-#endif // APP_H
+#endif

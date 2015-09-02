@@ -5,23 +5,30 @@ SOURCES +=\
     main.cpp \
     app.cpp \
     config.cpp \
-    dir.cpp \
     history.cpp \
     io.cpp \
-    lista.cpp \
     listbox.cpp \
     program.cpp \
     subclassing.cpp \
     synchro.cpp \
-    threads.cpp \
-    wm.cpp
+    controls.cpp \
+    files.cpp \
+    strings.cpp \
+    task.cpp \
+    thread.cpp \
+    events.cpp
 
 DISTFILES += \
     resource.rc
 
 HEADERS += \
     app.h \
-    dir.h \
     history.h \
-    lista.h \
-    synchro.h
+    synchro.h \
+    config.h \
+    controls.h \
+    files.h \
+    io.h \
+    strings.h \
+    task.h \
+    thread.h

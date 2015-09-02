@@ -2,21 +2,21 @@
 #define HISTORY_H
 
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
-struct history{
-	string txt;
-	history *next;
+class History {
+public:
+    History();
+    ~History();
+    vector<string>* history;
+    void add_with_time(string txt);
+    void load();
+    bool save();
+    void truncate(unsigned int remains);
 };
 
-void history_add(history **head, string txt);
-void history_add_time(history **head, string txt);
-void history_destroy(history **head);
-void history_delete1(history **head);
-int history_num(history *head);
-void history_load(history **head);
-void history_save(history **head);
-void history_truncate(history **head, int nr);
+string get_time();
 
 #endif

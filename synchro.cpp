@@ -1,85 +1,15 @@
 #include "synchro.h"
 #include "dir.h"
-#include "lista.h"
+#include "task.h"
 #include "app.h"
+#include "files.h"
 
 #include <fstream>
 
-string* get_drives(int &nr){
-	nr=0;
-	int max_buffer = 256;
-	char *drives_text = new char [max_buffer];
-	int result = GetLogicalDriveStrings(max_buffer,drives_text);
-	if(result<=0||result>max_buffer){
-		cout<<"Blad: 101"<<endl;
-		return NULL;
-	}
-	char* single_drive = drives_text;
-	while(single_drive<drives_text+result){
-		nr++;
-		single_drive+=strlen(single_drive)+1;
-	}
-	string *tab = new string [nr];
-	single_drive = drives_text;
-	nr=0;
-	while(single_drive<drives_text+result){
-		tab[nr] = single_drive;
-		nr++;
-		single_drive+=strlen(single_drive)+1;
-	}
-	delete[] drives_text;
-	return tab;
-}
-
-string list_drives(){
-	int drives_n=0;
-	string *drives = get_drives(drives_n);
-	stringstream ss;
-	for(int i=0; i<drives_n; i++){
-		ss<<drives[i];
-		if(i<drives_n-1) ss<<", ";
-	}
-	return ss.str();
-}
-
-bool files_cmp(string file1, string file2){
-	fstream plik;
-	plik.open(file1.c_str(),fstream::in|fstream::binary);
-	if(!plik.good()){
-		plik.close();
-		cout<<"Blad: Pierwszy plik nie istnieje"<<endl;
-		return false;
-	}
-	plik.seekg(0,plik.end);
-	unsigned int fsize1 = plik.tellg();
-	char *plik1 = new char [fsize1];
-	plik.seekg(0,plik.beg);
-	plik.read(plik1,fsize1);
-	plik.close();
-	plik.open(file2.c_str(),fstream::in|fstream::binary);
-	if(!plik.good()){
-		plik.close();
-		cout<<"Blad: Drugi plik nie istnieje"<<endl;
-		return false;
-	}
-	plik.seekg(0,plik.end);
-	unsigned int fsize2 = plik.tellg();
-	char *plik2 = new char [fsize2];
-	plik.seekg(0,plik.beg);
-	plik.read(plik2,fsize2);
-	plik.close();
-	if(fsize1!=fsize2){
-		delete[] plik1;
-		delete[] plik2;
-		return false;
-	}
-	int wynik = memcmp(plik1,plik2,fsize1);
-	delete[] plik1;
-	delete[] plik2;
-	if(wynik!=0){
-		return false;
-	}
-	return true;
+SynchroPath::SynchroPath(string source, string dest, bool content_check){
+    this->source = source;
+    this->dest = dest;
+    this->content_check = content_check;
 }
 
 void App::compare_files_out(string file1, string file2){
@@ -87,7 +17,7 @@ void App::compare_files_out(string file1, string file2){
 	plik.open(file1.c_str(),fstream::in|fstream::binary);
 	if(!plik.good()){
 		plik.close();
-		echo("B³¹d: Pierwszy plik nie istnieje");
+		IO::geti()->echo("B³¹d: Pierwszy plik nie istnieje");
 		return;
 	}
 	plik.seekg(0,plik.end);
@@ -99,7 +29,7 @@ void App::compare_files_out(string file1, string file2){
 	plik.open(file2.c_str(),fstream::in|fstream::binary);
 	if(!plik.good()){
 		plik.close();
-		echo("B³¹d: Drugi plik nie istnieje");
+		IO::geti()->echo("B³¹d: Drugi plik nie istnieje");
 		return;
 	}
 	plik.seekg(0,plik.end);
@@ -138,76 +68,77 @@ void App::compare_files_out(string file1, string file2){
 			ss<<"Ró¿nica - bajt "<<minsize<<" (ostatni wiersz: "<<wiersz<<")";
 		}
 	}
-	echo(ss.str());
+	IO::geti()->echo(ss.str());
 	delete[] plik1;
 	delete[] plik2;
 }
 
 string App::select_drive(){
-	int drives_n=0;
-	string *drives = get_drives(drives_n);
+    vector<string>* drives = get_drives();
 	int selected = -1;
-	if(synchro_paths_num==0){
-		echo("Nie wybrano synchronizowanych folderów.");
+	if(Config::geti()->synchropaths.size()==0){
+		IO::geti()->error("Nie wybrano synchronizowanych folderów.");
 		return "";
 	}
+    stringstream ss;
 	//sprawdzenie istnienia folderów na dysku Ÿród³owym
-	for(int i=0; i<synchro_paths_num; i++){
-		if(!dir_exists(synchro_paths_source[i])){
+	for(unsigned int i=0; i<Config::geti()->synchropaths.size(); i++){
+		if(!dir_exists(Config::geti()->synchropaths.at(i)->source)){
 			ss_clear(ss);
-			ss<<"B³¹d: Brak katalogu \""<<synchro_paths_source[i]<<"\" na dysku Ÿród³owym";
-			echo(ss.str());
+			ss<<"Brak katalogu \""<<Config::geti()->synchropaths.at(i)->source<<"\" na dysku Ÿród³owym";
+			IO::geti()->error(ss.str());
 			return "";
 		}
 	}
 	//szukanie istnienia folderów na dysku docelowym
-	for(int i=0; i<drives_n; i++){
-		bool valid=true;
-		for(int j=0; j<synchro_paths_num; j++){
-			if(!dir_exists(drives[i]+synchro_paths_dest[j])){
-				valid=false;
+	for(unsigned int i=0; i<drives->size(); i++){
+		bool valid = true;
+		for(int j=0; j<Config::geti()->synchropaths.size(); j++){
+			if(!dir_exists(drives->at(i) + Config::geti()->synchropaths.at(i)->dest)){
+				valid = false;
 				break;
 			}
 		}
 		if(valid){
-			selected=i;
+			selected = i;
 			break;
 		}
 	}
 	if(selected==-1){
 		ss_clear(ss);
-		ss<<"B³¹d: nie znaleziono odpowiedniego dysku.\r\n";
+		ss<<"Nie znaleziono odpowiedniego dysku.\r\n";
 		ss<<"Dostêpne dyski: ";
 		ss<<list_drives();
-		echo(ss.str());
+		IO::geti()->error(ss.str());
 		return "";
 	}else{
 		ss_clear(ss);
-		ss<<"Wybrany dysk: "<<drives[selected];
-		log(ss.str());
-		return drives[selected];
+		ss<<"Wybrany dysk: "<<drives->at(selected);
+		IO::geti()->log(ss.str());
+		return drives->at(selected);
 	}
 }
 
-void App::dirlist_cmp(string head1name, string head2name, lista **listaa, bool content_check, double prog_from, double prog_to){
+void App::dirlist_cmp(string head1name, string head2name, vector<Task*>* tasks, bool content_check, double prog_from, double prog_to){
 	set_progress(prog_from);
-	dir *head1 = list_dir(head1name);
-	dir *head2 = list_dir(head2name);
-	int num = dirlist_num(head1), numi=0;
-	if(head1==NULL&&head2==NULL) return;
-	dir *pom1 = head1, *szuk;
-	while(pom1!=NULL){ //sprawdzanie listy pierwszej - wzorca
-		szuk = dirlist_search(head2,pom1->name);
+    vector<File*>* dir1 = list_dir(head1name);
+    vector<File*>* dir2 = list_dir(head2name);
+	if(dir1==NULL || dir2==NULL) return;
+    for(unsigned int i=0; i<dir1->size(); i++){ //sprawdzanie listy pierwszej - wzorca
+        File* pom1 = dir1->at(i);
+        File* szuk = file_search(dir2, pom1->name);
 		if(pom1->size==-1){ //katalog
 			if(szuk==NULL){
-				lista_add(listaa,pom1->name,head1name,head2name,1);
+                tasks->push_back(new Task(pom1->name,head1name,head2name,TASK_BRAK_FOLDERU));
 				show_lista();
 			}else{
-				if(szuk->size!=-1){
-					lista_add(listaa,pom1->name,head1name,head2name,1);
+				if(szuk->size!=-1){ //znalaz³o, lecz jest plikiem
+					tasks->push_back(new Task(pom1->name,head1name,head2name,TASK_BRAK_FOLDERU));
 					show_lista();
-				}else{
-					dirlist_cmp(head1name+"\\"+pom1->name,head2name+"\\"+pom1->name,listaa,content_check,(prog_to-prog_from)*numi/num+prog_from,(prog_to-prog_from)*(numi+1)/num+prog_from);
+				}else{ //znalaz³o, jest te¿ katalogiem
+                    double progress1 = (prog_to-prog_from)*i/dir1->size()+prog_from;
+                    double progress2 = (prog_to-prog_from)*(i+1)/dir1->size()+prog_from;
+					dirlist_cmp(head1name+"\\"+pom1->name,head2name+"\\"+pom1->name,tasks,content_check,progress1, progress2);
 				}
 			}
 		}else{ //plik
@@ -228,9 +159,14 @@ void App::dirlist_cmp(string head1name, string head2name, lista **listaa, bool c
 				}
 			}
 		}
-		pom1=pom1->next;
 		numi++;
-		set_progress((prog_to-prog_from)*numi/num+prog_from);
+		set_progress((prog_to-prog_from)*i/dir1->size()+prog_from);
+    }
+
+
+	dir *pom1 = head1, *szuk;
+	while(pom1!=NULL){
+
 	}
 	pom1 = head2;
 	while(pom1!=NULL){ //sprawdzanie zbednych plikow z drugiej listy

@@ -1,6 +1,23 @@
 #include "app.h"
 #include <commctrl.h>
 
+void App::controls_fonts_set(){
+    for(unsigned int i=0; i<Controls::geti()->controls.size(); i++){
+        string fontface = Config::geti()->buttons_fontface;
+        int fontsize = Config::geti()->buttons_fontsize;
+        Controls::geti()->set_font(Controls::geti()->controls.at(i)->handle, fontface, fontsize);
+    }
+}
+
+void App::text_vcenter(){
+	int lines = SendMessage(Controls::geti()->find(Config::geti()->output_control),EM_GETLINECOUNT,0,0);
+	int height = Config::geti()->buttons_fontsize*lines;
+	int ypos = (50-height)/2;
+	if(ypos<0) ypos=0;
+	if(height>52) height=52;
+	SetWindowPos(Controls::geti()->find(Config::geti()->output_control),HWND_BOTTOM,0,ypos,Config::geti()->window_w,height,0);
+}
+
 void App::set_progress(double p){
 	if(p>1) p=1;
 	if(p<0) p=0;
