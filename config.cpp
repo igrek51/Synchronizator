@@ -115,15 +115,11 @@ void Config::save_config(){
     //lista zmiennych - uzupe³nienie
     vector<ConfigVariable*>* variables = new vector<ConfigVariable*>;
     add_variable(variables, "save_wnd_pos", save_wnd_pos);
-    if(save_wnd_pos==1){
-        add_variable(variables, "wnd_pos_x", wnd_pos_x);
-        add_variable(variables, "wnd_pos_y", wnd_pos_y);
-	}
+    add_variable(variables, "wnd_pos_x", wnd_pos_x);
+    add_variable(variables, "wnd_pos_y", wnd_pos_y);
     add_variable(variables, "save_wnd_size", save_wnd_size);
-    if(save_wnd_size==1){
-        add_variable(variables, "window_w", window_w);
-        add_variable(variables, "window_h", window_h);
-	}
+    add_variable(variables, "window_w", window_w);
+    add_variable(variables, "window_h", window_h);
     add_variable(variables, "log_enabled", log_enabled);
     add_variable(variables, "history_enabled", history_enabled);
     add_variable(variables, "external_viewer", external_viewer);

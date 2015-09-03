@@ -14,6 +14,8 @@ App::App(){
     historia = NULL;
     thread_active = false;
     historia = new History();
+    zadania = new vector<Task*>;
+    filesearch = NULL;
 }
 
 App::~App(){
@@ -22,8 +24,10 @@ App::~App(){
 		historia->save();
 	}
     Config::geti()->save_config();
-	IO::geti()->log("Sprz¹tanie...");
+    IO::geti()->log("Sprz¹tanie...");
+    if(filesearch!=NULL) delete filesearch;
 	delete Controls::geti();
+    tasks_clear(zadania);
 	IO::geti()->log("Goodbye World...");
 	PostQuitMessage(0);
 }

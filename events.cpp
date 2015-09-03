@@ -39,6 +39,14 @@ void App::event_init(HWND *window){
     for(unsigned int i=0; i<Controls::geti()->controls.size(); i++){
         subclass(Controls::geti()->controls.at(i));
     }
+    //ustawiona pozycja, rozmiar okna
+    if(Config::geti()->save_wnd_pos==1 && Config::geti()->save_wnd_size==1){
+        SetWindowPos(main_window,HWND_TOP,Config::geti()->wnd_pos_x,Config::geti()->wnd_pos_y,Config::geti()->window_w,Config::geti()->window_h,0);
+    }else if(Config::geti()->save_wnd_pos==1){
+        SetWindowPos(main_window,HWND_TOP,Config::geti()->wnd_pos_x,Config::geti()->wnd_pos_y,0,0,SWP_NOSIZE);
+    }else if(Config::geti()->save_wnd_size==1){
+        SetWindowPos(main_window,HWND_TOP,0,0,Config::geti()->window_w,Config::geti()->window_h,SWP_NOMOVE);
+    }
     event_resize();
     //progress bar
 	SendMessage(Controls::geti()->find("progress_bar"),PBM_SETRANGE,0,(LPARAM)MAKELONG(0,10000));
@@ -56,30 +64,22 @@ void App::event_button(WPARAM wParam, LPARAM lParam){
 	}
     string name = Controls::geti()->get_button_name(wParam);
     if(name.length()==0) return;
-    /*
 	//przyciski
-	if(wParam==1){ //szukaj
+	if(name=="szukaj"){ //szukaj
 		start_thread();
-	}
-	if(wParam==2){ //otwórz foldery
+	}else if(name=="2foldery"){ //otwórz foldery
 		otworz_foldery();
-	}
-	if(wParam==3){ //usuñ
+	}else if(name=="usun"){ //usuñ
 		pb_usun();
-	}
-	if(wParam==4){ //wykonaj 1
+	}else if(name=="wykonaj1"){ //wykonaj 1
 		wykonaj_1();
-	}
-	if(wParam==5){ //wykonaj wszystko
+	}else if(name=="wykonaj"){ //wykonaj wszystko
 		wykonaj_wszystko();
-	}
-	if(wParam==6){ //otwórz pliki
+	}else if(name=="porownaj_pliki"){ //otwórz pliki
 		otworz_pliki();
-	}
-	if(wParam==7){ //odwróæ
+	}else if(name=="odwroc"){ //odwróæ
 		pb_odwroc();
 	}
-    */
 }
 
 void App::event_resize(){

@@ -59,7 +59,7 @@ void IO::log(string s, int l){
 }
 
 void IO::error(string l, bool show_output){
-    if(show_output){
+    if(show_output && Controls::geti()->exists(Config::geti()->output_control)){
         echo("[B£¥D!] - "+l);
     }else{
         log("[B£¥D!] - "+l);

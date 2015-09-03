@@ -36,5 +36,6 @@ void FileSearch::run(){
     App::geti()->thread_active = true;
     App::geti()->synchroman_init();
     App::geti()->thread_active = false;
+    App::geti()->filesearch = NULL;
     delete this;
 }

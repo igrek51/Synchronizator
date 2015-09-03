@@ -161,3 +161,9 @@ void App::wykonaj_wszystko(){
 	show_lista();
 	IO::geti()->echo("Zakoñczono synchronizacjê.");
 }
+
+void App::start_thread(){
+    if(thread_active) return;
+    if(filesearch!=NULL) delete filesearch;
+    filesearch = new FileSearch();
+}

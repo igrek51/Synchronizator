@@ -5,6 +5,7 @@
 #include "controls.h"
 #include "io.h"
 #include "history.h"
+#include "thread.h"
 
 #include <windows.h>
 #include <iostream>
@@ -61,6 +62,8 @@ public:
     void un_subclass(string name);
 	//w¹tki
 	volatile bool thread_active;
+    void start_thread();
+    FileSearch* filesearch;
 };
 
 #endif
