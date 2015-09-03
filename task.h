@@ -14,6 +14,7 @@
 using namespace std;
 
 class Task {
+public:
     Task(string filename, string dir1, string dir2, int code);
     string filename;
     string dir1;
@@ -25,5 +26,8 @@ class Task {
     void invert();
     void execute();
 };
+
+void add_task(string filename, string dir1, string dir2, int code);
+void tasks_clear(vector<Task*>* tasks);
 
 #endif

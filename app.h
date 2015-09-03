@@ -1,90 +1,48 @@
 #ifndef APP_H
 #define APP_H
 
-#include <windows.h>
-#include <iostream>
-#include <sstream>
-
-#include "dir.h"
-#include "task.h"
-#include "history.h"
 #include "config.h"
 #include "controls.h"
 #include "io.h"
+#include "history.h"
+
+#include <windows.h>
+#include <iostream>
 
 using namespace std;
 
 class App{
 private:
     static App* instance;
-    App(int w, int h, string version, int ctrls = 0);
+    App();
 public:
     static App* geti();
 	~App();
     HWND main_window;
 	HINSTANCE* hInst;
+	//Events
+	void event_init(HWND *window);
+	void event_button(WPARAM wParam, LPARAM lParam);
+	void event_resize();
+	void event_move();
     //historia
     History* historia;
-
-
-	HWND *hctrl;
-	void setInstance(HINSTANCE *hInst);
-	//io
-	string *argv;
-	int argc;
-	void get_argv(LPSTR lpCmdLine);
-	bool is_arg(string par);
-	void clear_file(string filename);
-	void log(string l);
-	void log(int l);
-	void echo(string s);
-	void echo(int e);
-	void echo();
-	void text_vcenter();
-	bool file_exists(string name);
-	void ss_clear(stringstream &sstream);
-	stringstream ss;
-	void message(string m);
-	//config
-	void load_config();
-	void save_config();
-	int save_wnd_pos, save_wnd_size, wnd_pos_x, wnd_pos_y, wnd_w, wnd_h;
-	int synchro_paths_num;
-	string *synchro_paths_source, *synchro_paths_dest;
-	int *synchro_paths_content;
-	int log_enabled, history_enabled;
-	//WM
-	void wm_create(HWND *window);
-	void wm_command(WPARAM wParam, LPARAM lParam);
-	void wm_resize();
-	void wm_move();
-	//czcionki
-	void change_font(HWND hwdp);
-	int fontsize;
-	string fontface;
-	//dir
-	dir* list_dir(string d);
-	//lista
-	lista *listalista;
-	//historia
-	history *historia;
-	//synchro
-	string drive;
-	string select_drive();
-	void dirlist_cmp(string head1name, string head2name, vector<Task *> *tasks, bool content_check, double prog_from, double prog_to);
+    //zadania
+    vector<Task*>* zadania;
+    void exec_cmd(string l);
+    void execute_all_tasks(vector<Task*>* zadania);
 	//program
+    void controls_fonts_set();
+    void text_vcenter();
 	void set_progress(double p);
 	void synchroman_init();
 	void otworz_foldery();
+    void viewer_open(string file);
 	void otworz_pliki();
-	void compare_files_out(string file1, string file2);
 	void pb_usun();
 	void pb_odwroc();
 	void wykonaj_1();
 	void wykonaj_wszystko();
-	void lista_exec1(lista *e);
-	void lista_exec(lista **head);
-	void exec_task(string l);
 	//listbox
 	void show_lista();
 	int listbox_count();
@@ -95,17 +53,14 @@ public:
 	void listbox_select(int nr);
 	void listbox_clicked();
 	//subclassing
-	WNDPROC windowProc, wndproc_new, *wndproc_old;
-	LRESULT CALLBACK subclass_wndproc_new(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
-	void subclass(int ctrl);
-	void un_subclass(int ctrl);
+    WNDPROC windowProc, wndproc_new;
+    LRESULT CALLBACK subclass_wndproc_new(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+    void subclass(Control* kontrolka);
+    void subclass(string name);
+    void un_subclass(Control* kontrolka);
+    void un_subclass(string name);
 	//w¹tki
-	void start_thread();
-	void exec_thread();
 	volatile bool thread_active;
-private:
-	int ctrls_num;
-
 };
 
 #endif

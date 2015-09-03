@@ -1,4 +1,5 @@
 #include "strings.h"
+#include <ctime>
 
 string trim_spaces(string s){
     //obciêcie spacji na koñcu
@@ -45,4 +46,29 @@ bool str_cmp_lc(string s1, string s2){
 		if(to_lowercase(s1[i])!=to_lowercase(s2[i])) return false;
 	}
 	return true;
+}
+
+void ss_clear(stringstream &sstream){
+	sstream.str("");
+	sstream.clear();
+}
+
+string get_time(){
+    time_t rawtime;
+    struct tm *timeinfo;
+    time(&rawtime);
+    timeinfo = localtime(&rawtime);
+    stringstream ss;
+    if(timeinfo->tm_hour<10) ss<<"0";
+    ss<<timeinfo->tm_hour<<":";
+    if(timeinfo->tm_min<10) ss<<"0";
+    ss<<timeinfo->tm_min<<":";
+    if(timeinfo->tm_sec<10) ss<<"0";
+    ss<<timeinfo->tm_sec<<", ";
+    if(timeinfo->tm_mday<10) ss<<"0";
+    ss<<timeinfo->tm_mday<<".";
+    if(timeinfo->tm_mon+1<10) ss<<"0";
+    ss<<timeinfo->tm_mon+1<<".";
+    ss<<timeinfo->tm_year+1900;
+    return ss.str();
 }

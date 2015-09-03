@@ -5,7 +5,7 @@ using namespace std;
 LRESULT CALLBACK windowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 LRESULT CALLBACK wndproc_new(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam){
-	return app->subclass_wndproc_new(hwnd, message, wParam, lParam);
+	return App::geti()->subclass_wndproc_new(hwnd, message, wParam, lParam);
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow){

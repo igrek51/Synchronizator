@@ -2,6 +2,9 @@
 #include "files.h"
 #include "io.h"
 #include "strings.h"
+#include "version.h"
+#include "app.h"
+
 #include <cstdlib>
 
 Config* Config::instance = NULL;
@@ -37,6 +40,7 @@ Config::Config(){
     log_enabled = true;
     history_enabled = true;
     synchro_paths_num = 0;
+    external_viewer = "";
 }
 
 ConfigVariable::ConfigVariable(string name, string value){
@@ -50,6 +54,7 @@ void Config::load_config(){
         return;
     }
     vector<ConfigVariable*>* variables = get_config_variables(config_filename);
+    RECT wnd_rect;
     //odczyt zmiennych
     save_wnd_pos = get_config_int(variables, "save_wnd_pos");
     if(save_wnd_pos == 2){ //reset ustawieñ
@@ -93,6 +98,7 @@ void Config::load_config(){
 	}
 	log_enabled = get_config_bool(variables, "log_enabled");
 	history_enabled = get_config_bool(variables, "history_enabled");
+    external_viewer = get_config_string(variables, "external_viewer");
     //sprz¹tanie
     for(unsigned int i=0; i<variables->size(); i++){
         delete variables->at(i);
@@ -120,6 +126,7 @@ void Config::save_config(){
 	}
     add_variable(variables, "log_enabled", log_enabled);
     add_variable(variables, "history_enabled", history_enabled);
+    add_variable(variables, "external_viewer", external_viewer);
     add_variable(variables, "synchro_paths_num", (int)synchropaths.size());
     stringstream ss;
     for(unsigned int i=0; i<synchropaths.size(); i++){
@@ -135,7 +142,7 @@ void Config::save_config(){
     }
     //zapisanie zmiennych do pliku
     ss_clear(ss);
-    for(unsigned int i=0; i<variables.size(); i++){
+    for(unsigned int i=0; i<variables->size(); i++){
         ss<<variables->at(i)->name<<" = "<<variables->at(i)->value<<endl<<endl;
     }
     delete variables;
@@ -217,6 +224,6 @@ void Config::add_variable(vector<ConfigVariable*>* variables, string name, int v
 }
 
 void Config::add_variable(vector<ConfigVariable*>* variables, string name, bool value){
-    variables->push_back(new ConfigVariable(name, value?"true":"false");
+    variables->push_back(new ConfigVariable(name, value?"true":"false"));
 }
 

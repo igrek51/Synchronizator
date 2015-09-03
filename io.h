@@ -2,9 +2,8 @@
 #define IO_H
 
 #include <iostream>
-#include <sstream>
 #include <vector>
-#include <ctime>
+#include <sstream>
 
 using namespace std;
 
@@ -14,7 +13,6 @@ private:
     IO();
 public:
     static IO* geti();
-    static IO* i();
     //  LOG
     void clear_log();
     void delete_log();
@@ -31,8 +29,5 @@ public:
     //  Message Box
     void message_box(string title, string message = "");
 };
-
-string get_time();
-void ss_clear(stringstream &sstream);
 
 #endif

@@ -48,7 +48,7 @@ vector<string>* Task::cmds(){
 
 int Task::cmds_number(){
     vector<string>* cmdsy = cmds();
-    int number = cmdsy.size();
+    int number = cmdsy->size();
     delete cmdsy;
     return number;
 }
@@ -71,25 +71,37 @@ void Task::invert(){
 void Task::execute(){
     vector<string>* cmdsy = cmds();
 	for(unsigned int i=0; i<cmdsy->size(); i++){
-		exec_cmd(cmdsy->at(i));
+		App::geti()->exec_cmd(cmdsy->at(i));
 	}
     delete cmdsy;
 }
 
+void add_task(string filename, string dir1, string dir2, int code){
+    App::geti()->zadania->push_back(new Task(filename, dir1, dir2, code));
+    App::geti()->show_lista();
+}
+
+void tasks_clear(vector<Task*>* tasks){
+    for(unsigned int i=0; i<tasks->size(); i++){
+        delete tasks->at(i);
+    }
+}
 
 void App::exec_cmd(string l){
-	log("Wykonywanie: "+l);
+	IO::geti()->log("Wykonywanie: "+l);
     if(system(l.c_str())==0){
-        history_add_time(&historia,l);
+        historia->add_with_time(l);
     }else{
         IO::geti()->error("Blad polecenia: "+l);
     }
 }
 
-void App::tasks_execute(vector<Task*>* zadania){
+void App::execute_all_tasks(vector<Task*>* zadania){
     for(unsigned int i=0; i<zadania->size(); i++){
         set_progress(double(i)/zadania->size());
-		zadania->execute();
+		zadania->at(i)->execute();
 	}
 	set_progress(1);
 }
+
+

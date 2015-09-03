@@ -1,10 +1,9 @@
 #include "synchro.h"
-#include "dir.h"
-#include "task.h"
-#include "app.h"
 #include "files.h"
-
-#include <fstream>
+#include "io.h"
+#include "config.h"
+#include "strings.h"
+#include "app.h"
 
 SynchroPath::SynchroPath(string source, string dest, bool content_check){
     this->source = source;
@@ -12,72 +11,12 @@ SynchroPath::SynchroPath(string source, string dest, bool content_check){
     this->content_check = content_check;
 }
 
-void App::compare_files_out(string file1, string file2){
-	fstream plik;
-	plik.open(file1.c_str(),fstream::in|fstream::binary);
-	if(!plik.good()){
-		plik.close();
-		IO::geti()->echo("B³¹d: Pierwszy plik nie istnieje");
-		return;
-	}
-	plik.seekg(0,plik.end);
-	unsigned int fsize1 = plik.tellg();
-	char *plik1 = new char [fsize1];
-	plik.seekg(0,plik.beg);
-	plik.read(plik1,fsize1);
-	plik.close();
-	plik.open(file2.c_str(),fstream::in|fstream::binary);
-	if(!plik.good()){
-		plik.close();
-		IO::geti()->echo("B³¹d: Drugi plik nie istnieje");
-		return;
-	}
-	plik.seekg(0,plik.end);
-	unsigned int fsize2 = plik.tellg();
-	char *plik2 = new char [fsize2];
-	plik.seekg(0,plik.beg);
-	plik.read(plik2,fsize2);
-	plik.close();
-	ss_clear(ss);
-	if(fsize1!=fsize2){
-		ss<<"Pliki o ró¿nych rozmiarach,\r\n";
-	}else{
-		ss<<"Pliki o równych rozmiarach,\r\n";
-	}
-	int minsize=(fsize1>fsize2)?fsize2:fsize1;
-	bool rowne = true;
-	int wiersz = 1;
-	int znak_wiersza = 0;
-	for(int i=0; i<minsize; i++){
-		if(plik1[i]=='\n'){
-			wiersz++;
-			znak_wiersza = 0;
-		}else{
-			znak_wiersza++;
-		}
-		if(plik1[i]!=plik2[i]){
-			rowne=false;
-			ss<<"Ró¿nica - bajt "<<i<<" (wiersz: "<<wiersz<<", znak: "<<znak_wiersza-1<<")";
-			break;
-		}
-	}
-	if(rowne){
-		if(fsize1==fsize2){
-			ss<<"Brak ró¿nicy zawartoœci plików";
-		}else{
-			ss<<"Ró¿nica - bajt "<<minsize<<" (ostatni wiersz: "<<wiersz<<")";
-		}
-	}
-	IO::geti()->echo(ss.str());
-	delete[] plik1;
-	delete[] plik2;
-}
-
-string App::select_drive(){
+string select_drive(){
     vector<string>* drives = get_drives();
-	int selected = -1;
+	string selected_drive = "";
 	if(Config::geti()->synchropaths.size()==0){
 		IO::geti()->error("Nie wybrano synchronizowanych folderów.");
+        delete drives;
 		return "";
 	}
     stringstream ss;
@@ -87,100 +26,101 @@ string App::select_drive(){
 			ss_clear(ss);
 			ss<<"Brak katalogu \""<<Config::geti()->synchropaths.at(i)->source<<"\" na dysku Ÿród³owym";
 			IO::geti()->error(ss.str());
+            delete drives;
 			return "";
 		}
 	}
 	//szukanie istnienia folderów na dysku docelowym
 	for(unsigned int i=0; i<drives->size(); i++){
 		bool valid = true;
-		for(int j=0; j<Config::geti()->synchropaths.size(); j++){
-			if(!dir_exists(drives->at(i) + Config::geti()->synchropaths.at(i)->dest)){
+		for(unsigned int j=0; j<Config::geti()->synchropaths.size(); j++){
+			if(!dir_exists(drives->at(i) + Config::geti()->synchropaths.at(j)->dest)){
 				valid = false;
 				break;
 			}
 		}
 		if(valid){
-			selected = i;
+			selected_drive = drives->at(i);
 			break;
 		}
 	}
-	if(selected==-1){
+	if(selected_drive.length()==0){
 		ss_clear(ss);
 		ss<<"Nie znaleziono odpowiedniego dysku.\r\n";
 		ss<<"Dostêpne dyski: ";
-		ss<<list_drives();
+        vector<string>* drives = get_drives();
+        for(unsigned int i=0; i<drives->size(); i++){
+            ss<<drives->at(i);
+            if(i<drives->size()-1) ss<<", ";
+        }
+        delete drives;
 		IO::geti()->error(ss.str());
+        delete drives;
 		return "";
 	}else{
 		ss_clear(ss);
-		ss<<"Wybrany dysk: "<<drives->at(selected);
+		ss<<"Wybrany dysk: "<<selected_drive;
 		IO::geti()->log(ss.str());
-		return drives->at(selected);
+        delete drives;
+		return selected_drive;
 	}
 }
 
-void App::dirlist_cmp(string head1name, string head2name, vector<Task*>* tasks, bool content_check, double prog_from, double prog_to){
-	set_progress(prog_from);
+void dirlist_cmp(string head1name, string head2name, bool content_check, double prog_from, double prog_to){
+	App::geti()->set_progress(prog_from);
     vector<File*>* dir1 = list_dir(head1name);
     vector<File*>* dir2 = list_dir(head2name);
 	if(dir1==NULL || dir2==NULL) return;
+    File *wzor, *szuk;
     for(unsigned int i=0; i<dir1->size(); i++){ //sprawdzanie listy pierwszej - wzorca
-        File* pom1 = dir1->at(i);
-        File* szuk = file_search(dir2, pom1->name);
-		if(pom1->size==-1){ //katalog
+        wzor = dir1->at(i);
+        szuk = file_search(dir2, wzor->name);
+		if(wzor->size==-1){ //katalog
 			if(szuk==NULL){
-                tasks->push_back(new Task(pom1->name,head1name,head2name,TASK_BRAK_FOLDERU));
-				show_lista();
+                add_task(wzor->name,head1name,head2name,TASK_BRAK_FOLDERU);
 			}else{
 				if(szuk->size!=-1){ //znalaz³o, lecz jest plikiem
-					tasks->push_back(new Task(pom1->name,head1name,head2name,TASK_BRAK_FOLDERU));
-					show_lista();
+                    add_task(wzor->name,head1name,head2name,TASK_BRAK_FOLDERU);
 				}else{ //znalaz³o, jest te¿ katalogiem
                     double progress1 = (prog_to-prog_from)*i/dir1->size()+prog_from;
                     double progress2 = (prog_to-prog_from)*(i+1)/dir1->size()+prog_from;
-					dirlist_cmp(head1name+"\\"+pom1->name,head2name+"\\"+pom1->name,tasks,content_check,progress1, progress2);
+                    //rekurencja
+					dirlist_cmp(head1name+"\\"+wzor->name,head2name+"\\"+wzor->name,content_check,progress1, progress2);
 				}
 			}
 		}else{ //plik
 			if(szuk==NULL){
-				lista_add(listaa,pom1->name,head1name,head2name,2);
-				show_lista();
+                add_task(wzor->name,head1name,head2name,TASK_BRAK_PLIKU);
 			}else{
-				if(szuk->size!=pom1->size){
-					lista_add(listaa,pom1->name,head1name,head2name,3);
-					show_lista();
+				if(szuk->size!=wzor->size){
+                    add_task(wzor->name,head1name,head2name,TASK_INNY_ROZMIAR);
 				}else{
 					if(content_check){
-						if(!files_cmp(head1name+"\\"+pom1->name,head2name+"\\"+pom1->name)){
-							lista_add(listaa,pom1->name,head1name,head2name,4);
-							show_lista();
+						if(!files_cmp(head1name+"\\"+wzor->name,head2name+"\\"+wzor->name)){
+                            add_task(wzor->name,head1name,head2name,TASK_INNA_WERSJA);
 						}
 					}
 				}
 			}
 		}
-		numi++;
-		set_progress((prog_to-prog_from)*i/dir1->size()+prog_from);
+		App::geti()->set_progress((prog_to-prog_from)*i/dir1->size()+prog_from);
     }
-
-
-	dir *pom1 = head1, *szuk;
-	while(pom1!=NULL){
-
-	}
-	pom1 = head2;
-	while(pom1!=NULL){ //sprawdzanie zbednych plikow z drugiej listy
-		if(dirlist_search(head1,pom1->name)==NULL){ //jeœli nie znajdzie
-			if(pom1->size==-1){
-				lista_add(listaa,pom1->name,head1name,head2name,5);
-				show_lista();
-			}else{
-				lista_add(listaa,pom1->name,head1name,head2name,6);
-				show_lista();
+    for(unsigned int i=0; i<dir2->size(); i++){ //sprawdzanie zbednych plikow z drugiej listy
+        wzor = dir2->at(i);
+        if(file_search(dir1, wzor->name)==NULL){ //jeœli nie znajdzie
+			if(wzor->size==-1){ //folder
+                add_task(wzor->name,head1name,head2name,TASK_ZBEDNY_FOLDER);
+			}else{ //plik
+                add_task(wzor->name,head1name,head2name,TASK_ZBEDNY_PLIK);
 			}
 		}
-		pom1=pom1->next;
-	}
-	dirlist_destroy(&head1);
-	dirlist_destroy(&head2);
+    }
+    for(unsigned int i=0; i<dir1->size(); i++){
+        delete dir1->at(i);
+    }
+    delete dir1;
+    for(unsigned int i=0; i<dir2->size(); i++){
+        delete dir2->at(i);
+    }
+    delete dir2;
 }

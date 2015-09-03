@@ -1,9 +1,10 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#include "synchro.h"
+
 #include <iostream>
 #include <vector>
-#include "synchro.h"
 
 using namespace std;
 
@@ -52,6 +53,7 @@ public:
     bool history_enabled;
     int synchro_paths_num;
     vector<SynchroPath*> synchropaths;
+    string external_viewer;
 };
 
 #endif

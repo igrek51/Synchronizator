@@ -58,11 +58,6 @@ public:
     //  Zmiana czcionki
     void set_font(HWND kontrolka, string fontface, int fontsize);
     void set_font(string name, string fontface, int fontsize);
-    //  Menu
-    int id_counter;
-    vector<string> menu_names;
-    vector<int> menu_ids;
-    string get_menu_name(int menu_id);
 };
 
 #endif

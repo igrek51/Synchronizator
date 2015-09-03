@@ -12,6 +12,8 @@ App* App::geti(){
 App::App(){
     instance = this;
     historia = NULL;
+    thread_active = false;
+    historia = new History();
 }
 
 App::~App(){
@@ -19,13 +21,9 @@ App::~App(){
         historia->truncate(Config::geti()->history_num);
 		historia->save();
 	}
-	Config::geti()->save_config();
-	log("Sprz¹tanie...");
+    Config::geti()->save_config();
+	IO::geti()->log("Sprz¹tanie...");
 	delete Controls::geti();
-	log("Goodbye World...");
+	IO::geti()->log("Goodbye World...");
 	PostQuitMessage(0);
-}
-
-void App::setInstance(HINSTANCE *hInst){
-	this->hInst = hInst;
 }

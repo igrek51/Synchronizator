@@ -44,9 +44,7 @@ void App::event_init(HWND *window){
 	SendMessage(Controls::geti()->find("progress_bar"),PBM_SETRANGE,0,(LPARAM)MAKELONG(0,10000));
 	set_progress(0);
     //tytu³
-    ss_clear(ss);
-	ss<<"Igrek Synchronizator v"<<version;
-	SetWindowText(main_window, ss.str().c_str());
+	SetWindowText(main_window, (Config::geti()->program_name+" v"+Config::geti()->version).c_str());
     IO::geti()->echo("Naciœnij przycisk \"Szukaj\", aby wyszukaæ elementy synchronizacji.");
 }
 
@@ -94,72 +92,24 @@ void App::event_resize(){
 	Config::geti()->window_w = w;
     Config::geti()->window_h = h;
 	text_vcenter();
-	SetWindowPos(hctrl[9],HWND_TOP,0,0,window_w-20,15,SWP_NOMOVE);
-	SetWindowPos(hctrl[10],HWND_TOP,0,0,window_w-20,window_h-80,SWP_NOMOVE);
-	SetWindowPos(hctrl[8],HWND_TOP,0,0,window_w-40,window_h-150,SWP_NOMOVE);
-	for(int i=0; i<7; i++){
-		SetWindowPos(hctrl[i+1],HWND_TOP,20+(window_w-40)*i/7,window_h-50,(window_w-40)/7,30,0);
-	}
-    /*
-    IO::geti()->log("Resize okna - Odœwie¿anie uk³adu kontrolek...");
-    if(!Controls::geti()->exists("cmd_output1")) return;
-    if(!Controls::geti()->exists("editor")) return;
-    int ch = Config::geti()->control_height;
-	RECT wnd_rect;
-	GetClientRect(main_window, &wnd_rect);
-	int w = wnd_rect.right-wnd_rect.left;
-	int h = wnd_rect.bottom-wnd_rect.top;
-    Config::geti()->window_w = w;
-    Config::geti()->window_h = h;
-    //rozmieszczenie kontrolek
-    int editor_h = h-ch;
-    int editor_y = 0;
-    if(Config::geti()->cmd_show){
-        editor_h -= ch*Config::geti()->cmd_outputs_num;
-    }
-
-	if(Config::geti()->toolbar_show){
-        editor_h -= ch*3;
-        editor_y += ch*3;
-    }
-    Controls::i()->resize("editor", 0,editor_y,w,editor_h);
-
-    Controls::i()->resize("filename", 0,0,Config::geti()->static_filename_width,ch);
-    Controls::i()->resize("filename_edit", Config::geti()->static_filename_width,0,w-Config::geti()->static_filename_width,ch);
-    //1. rz¹d
-    Controls::i()->resize("new", w*0/7,ch*1,w/7,ch);
-    Controls::i()->resize("load", w*1/7,ch*1,w/7,ch);
-    Controls::i()->resize("save", w*2/7,ch*1,w/7,ch);
-    Controls::i()->resize("base", w*3/7,ch*1,w/7,ch);
-    Controls::i()->resize("autoscroll_interval", w*4/7,ch*1,w/7,ch);
-    Controls::i()->resize("autoscroll_wait", w*5/7,ch*1,w/7,ch);
-    Controls::i()->resize("autoscroll", w*6/7,ch*1,w/7,ch);
-	//2. rz¹d
-    Controls::i()->resize("find_edit", w*0/7,ch*2,w*2/7,ch);
-    Controls::i()->resize("replace_edit", w*2/7,ch*2,w*2/7,ch);
-    Controls::i()->resize("find", w*4/7,ch*2,w/7,ch);
-    Controls::i()->resize("replace", w*5/7,ch*2,w/7,ch);
-    Controls::i()->resize("analyze", w*6/7,ch*2,w/7,ch);
-    //konsola
-    if(Config::geti()->cmd_show){
-        for(int i=0; i<Config::geti()->cmd_outputs_num; i++){
-            stringstream ss;
-            ss<<"cmd_output"<<i+1;
-            Controls::i()->resize(ss.str(), Config::geti()->cmd_outputs_space,h-ch*(i+2),w-Config::geti()->cmd_outputs_space,ch);
-        }
-        Controls::i()->resize("cmd", 0,h-ch,w,ch);
-    }else{
-        Controls::i()->resize("cmd_output1", 0,h-ch,w,ch);
-    }
-    */
+    Controls::geti()->resize("szukaj",20+(w-40)*0/7,h-50,(w-40)/7,30);
+    Controls::geti()->resize("2foldery",20+(w-40)*1/7,h-50,(w-40)/7,30);
+    Controls::geti()->resize("porownaj_pliki",20+(w-40)*2/7,h-50,(w-40)/7,30);
+    Controls::geti()->resize("usun",20+(w-40)*3/7,h-50,(w-40)/7,30);
+    Controls::geti()->resize("odwroc",20+(w-40)*4/7,h-50,(w-40)/7,30);
+    Controls::geti()->resize("wykonaj1",20+(w-40)*5/7,h-50,(w-40)/7,30);
+    Controls::geti()->resize("wykonaj",20+(w-40)*6/7,h-50,(w-40)/7,30);
+    Controls::geti()->resize("progress_bar",10,52,w-20,15);
+    Controls::geti()->resize("listbox",20,90,w-40,h-150);
+    Controls::geti()->resize("groupbox1",10,70,w-20,h-80);
 }
 
 void App::event_move(){
 	RECT wnd_rect;
-	GetWindowRect(hwnd, &wnd_rect);
-	wnd_pos_x = wnd_rect.left;
-	wnd_pos_y = wnd_rect.top;
-	wnd_w = wnd_rect.right-wnd_rect.left;
-	wnd_h = wnd_rect.bottom-wnd_rect.top;
+	GetWindowRect(main_window, &wnd_rect);
+	Config::geti()->wnd_pos_x = wnd_rect.left;
+	Config::geti()->wnd_pos_y = wnd_rect.top;
+	Config::geti()->window_w = wnd_rect.right-wnd_rect.left;
+	Config::geti()->window_h = wnd_rect.bottom-wnd_rect.top;
 }
 

@@ -32,7 +32,7 @@ bool dir_exists(string name){
     return false;
 }
 
-bool files_cmp(string file1, string file2){
+bool files_cmp(string file1, string file2, bool out){
 	fstream plik;
 	plik.open(file1.c_str(),fstream::in|fstream::binary);
 	if(!plik.good()){
@@ -59,8 +59,42 @@ bool files_cmp(string file1, string file2){
 	plik.seekg(0,plik.beg);
 	plik.read(plik2,fsize2);
 	plik.close();
-	if(fsize1!=fsize2){
-		delete[] plik1;
+    //szczegó³y o ró¿nicach plików na output
+    if(out){
+        stringstream ss;
+        if(fsize1==fsize2){
+            ss<<"Pliki o równych rozmiarach,\r\n";
+        }else{
+            ss<<"Pliki o ró¿nych rozmiarach,\r\n";
+        }
+        int minsize=(fsize1>fsize2)?fsize2:fsize1;
+        bool rowne = true;
+        int wiersz = 1;
+        int znak_wiersza = 0;
+        for(int i=0; i<minsize; i++){
+            if(plik1[i]=='\n'){
+                wiersz++;
+                znak_wiersza = 0;
+            }else{
+                znak_wiersza++;
+            }
+            if(plik1[i]!=plik2[i]){
+                rowne=false;
+                ss<<"Ró¿nica - bajt "<<i<<" (wiersz: "<<wiersz<<", znak: "<<znak_wiersza-1<<")";
+                break;
+            }
+        }
+        if(rowne){
+            if(fsize1==fsize2){
+                ss<<"Brak ró¿nicy zawartoœci plików";
+            }else{
+                ss<<"Ró¿nica - bajt "<<minsize<<" (ostatni wiersz: "<<wiersz<<")";
+            }
+        }
+        IO::geti()->echo(ss.str());
+    }
+    if(fsize1!=fsize2){
+        delete[] plik1;
 		delete[] plik2;
 		return false;
 	}
@@ -69,7 +103,6 @@ bool files_cmp(string file1, string file2){
 	delete[] plik2;
 	return wynik==0;
 }
-
 
 vector<string>* get_all_lines(string filename){
     vector<string>* lines = new vector<string>;
@@ -198,14 +231,4 @@ vector<string>* get_drives(){
 	}
 	delete[] drives_text;
 	return drives;
-}
-
-string list_drives(){
-	vector<string>* drives = get_drives();
-	stringstream ss;
-	for(unsigned int i=0; i<drives->size(); i++){
-		ss<<drives[i];
-		if(i<drives->size()-1) ss<<", ";
-	}
-	return ss.str();
 }

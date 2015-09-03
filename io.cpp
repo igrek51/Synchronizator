@@ -2,11 +2,9 @@
 #include "config.h"
 #include "files.h"
 #include "controls.h"
-#include "strings.h"
 #include "app.h"
 
 #include <fstream>
-#include <ctime>
 #include <windows.h>
 
 IO* IO::instance = NULL;
@@ -18,15 +16,8 @@ IO* IO::geti(){
     return instance;
 }
 
-IO* IO::i(){
-    return geti();
-}
-
 IO::IO(){
     instance = this;
-    last_echo = "";
-    repeated_echo = 0;
-    clock_last = clock();
 }
 
 
@@ -99,29 +90,4 @@ void IO::message_box(string title, string message){
         title = "Wiadomoœæ";
     }
     MessageBox(NULL, message.c_str(), title.c_str(), MB_OK|MB_ICONINFORMATION);
-}
-
-string get_time(){
-    time_t rawtime;
-    struct tm *timeinfo;
-    time(&rawtime);
-    timeinfo = localtime(&rawtime);
-    stringstream ss;
-    if(timeinfo->tm_hour<10) ss<<"0";
-    ss<<timeinfo->tm_hour<<":";
-    if(timeinfo->tm_min<10) ss<<"0";
-    ss<<timeinfo->tm_min<<":";
-    if(timeinfo->tm_sec<10) ss<<"0";
-    ss<<timeinfo->tm_sec<<", ";
-    if(timeinfo->tm_mday<10) ss<<"0";
-    ss<<timeinfo->tm_mday<<".";
-    if(timeinfo->tm_mon+1<10) ss<<"0";
-    ss<<timeinfo->tm_mon+1<<".";
-    ss<<timeinfo->tm_year+1900;
-    return ss.str();
-}
-
-void ss_clear(stringstream &sstream){
-	sstream.str("");
-	sstream.clear();
 }

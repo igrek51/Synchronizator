@@ -7,7 +7,7 @@ SRC_PATH =
 
 SRC = *.cpp
 
-HEADERS = *.h
+HEADERS = *.h -version.h
 
 OUTPUT = Synchronizator.exe
 
@@ -19,4 +19,4 @@ LINKER_FLAGS = -Wall -mwindows -s
 
 RESOURCE = resource.rc
 
-VERSION_FILE = 
+VERSION_FILE = version.h

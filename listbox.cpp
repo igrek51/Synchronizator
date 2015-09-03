@@ -1,4 +1,5 @@
 #include "app.h"
+#include "strings.h"
 
 int App::listbox_count(){
 	return SendMessage(Controls::geti()->find("listbox"),LB_GETCOUNT,0,0);
@@ -33,22 +34,16 @@ void App::show_lista(){
 	SIZE textSize;
 	HFONT hF = (HFONT)SendMessage(Controls::geti()->find("listbox"),WM_GETFONT,0,0);
 	HGDIOBJ hOld = SelectObject(dcList,hF);
-
-
-	if(listalista==NULL) return;
-	lista *pom = listalista;
-	int nr = 1;
-	int max_w = 0;
-	while(pom!=NULL){
-		ss_clear(ss);
-		ss<<get_task_name(pom)<<": "<<pom->dir2<<"\\"<<pom->filename;
+    stringstream ss;
+    int max_w = 0;
+    for(unsigned int i=0; i<zadania->size(); i++){
+        ss_clear(ss);
+        ss<<zadania->at(i)->name()<<": "<<zadania->at(i)->dir2<<"\\"<<zadania->at(i)->filename;
 		listbox_add(ss.str());
-		//d³ugoœæ tekstu w pixelach
+        //d³ugoœæ tekstu w pixelach
 		GetTextExtentPoint32(dcList,ss.str().c_str(),ss.str().length(),&textSize);
-		if(textSize.cx>max_w) max_w=textSize.cx;
-		nr++;
-		pom=pom->next;
-	}
+		if(textSize.cx > max_w) max_w = textSize.cx;
+    }
 	SelectObject(dcList,hOld);
 	ReleaseDC(Controls::geti()->find("listbox"),dcList);
 	SendMessage(Controls::geti()->find("listbox"),LB_SETHORIZONTALEXTENT,max_w,NULL);
@@ -57,23 +52,14 @@ void App::show_lista(){
 void App::listbox_clicked(){
 	int n = listbox_current();
 	if(n==-1) return;
-	if(listalista==NULL) return;
-	lista *pom = listalista;
-	int nr=0;
-	while(pom!=NULL){
-		if(nr==n){
-			ss_clear(ss);
-			int task_num = get_task_num(pom);
-			ss<<"Zadania dla elementu "<<pom->dir2<<"\\"<<pom->filename<<" ["<<task_num<<"]:\r\n";
-			string *tasks = get_tasks(pom);
-			for(int i=0; i<task_num; i++){
-				ss<<tasks[i];
-				if(i<task_num-1) ss<<"\r\n";
-			}
-			echo(ss.str());
-			break;
-		}
-		nr++;
-		pom=pom->next;
-	}
+	if(zadania->size()==0) return;
+    stringstream ss;
+    Task* task = zadania->at(n);
+    vector<string>* cmds = task->cmds();
+    ss<<"Zadania dla elementu "<<task->dir2<<"\\"<<task->filename<<" ["<<cmds->size()<<"]:\r\n";
+    for(unsigned int i=0; i<cmds->size(); i++){
+        ss<<cmds->at(i);
+        if(i<cmds->size()-1) ss<<"\r\n";
+    }
+    IO::geti()->echo(ss.str());
 }

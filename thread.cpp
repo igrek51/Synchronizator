@@ -23,8 +23,6 @@ Thread::~Thread(){
     IO::geti()->log("W¹tek zakoñczony.");
 }
 
-bool FileSeach::is_running = false;
-
 FileSearch::FileSearch(){
     IO::geti()->log("W¹tek przeszukiwania plików zainicjowany.");
 }
@@ -34,9 +32,9 @@ FileSearch::~FileSearch(){
 }
 
 void FileSearch::run(){
-    if(is_running) delete this;
-    is_running = true;
+    if(App::geti()->thread_active) delete this;
+    App::geti()->thread_active = true;
     App::geti()->synchroman_init();
-    is_running = false;
+    App::geti()->thread_active = false;
     delete this;
 }

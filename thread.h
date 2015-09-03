@@ -18,7 +18,6 @@ class FileSearch : public Thread {
 public:
     FileSearch();
     ~FileSearch();
-    static bool is_running;
 private:
     void run();
 };
