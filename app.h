@@ -36,7 +36,7 @@ public:
     void controls_fonts_set();
     void text_vcenter();
 	void set_progress(double p);
-	void synchroman_init();
+	void synchro_search();
 	void otworz_foldery();
     void viewer_open(string file);
 	void otworz_pliki();
@@ -61,8 +61,7 @@ public:
     void un_subclass(Control* kontrolka);
     void un_subclass(string name);
 	//w¹tki
-	volatile bool thread_active;
-    void start_thread();
+    void filesearch_start();
     FileSearch* filesearch;
 };
 

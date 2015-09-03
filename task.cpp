@@ -85,6 +85,7 @@ void tasks_clear(vector<Task*>* tasks){
     for(unsigned int i=0; i<tasks->size(); i++){
         delete tasks->at(i);
     }
+    tasks->clear();
 }
 
 void App::exec_cmd(string l){

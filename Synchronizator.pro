@@ -31,4 +31,5 @@ HEADERS += \
     io.h \
     strings.h \
     task.h \
-    thread.h
+    thread.h \
+    version.h

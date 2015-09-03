@@ -10,7 +10,9 @@ void App::event_init(HWND *window){
         IO::geti()->clear_log();
         IO::geti()->log("Hello World...");
     }
-    historia->load();
+    if(Config::geti()->history_enabled){
+        historia->load();
+    }
     //kontrolki
     IO::geti()->log("Tworzenie kontrolek...");
     //groupbox
@@ -62,11 +64,14 @@ void App::event_button(WPARAM wParam, LPARAM lParam){
 		//listbox_clicked();
         return;
 	}
-    string name = Controls::geti()->get_button_name(wParam);
+    string name = "";
+    if(wParam>=1 && wParam<=Controls::geti()->controls.size()){
+        name = Controls::geti()->get_button_name(wParam);
+    }
     if(name.length()==0) return;
 	//przyciski
 	if(name=="szukaj"){ //szukaj
-		start_thread();
+		filesearch_start();
 	}else if(name=="2foldery"){ //otwórz foldery
 		otworz_foldery();
 	}else if(name=="usun"){ //usuñ
@@ -79,7 +84,9 @@ void App::event_button(WPARAM wParam, LPARAM lParam){
 		otworz_pliki();
 	}else if(name=="odwroc"){ //odwróæ
 		pb_odwroc();
-	}
+	}else{
+        IO::geti()->error("Zdarzenie nie zosta³o obs³u¿one: "+name);
+    }
 }
 
 void App::event_resize(){

@@ -12,7 +12,6 @@ App* App::geti(){
 App::App(){
     instance = this;
     historia = NULL;
-    thread_active = false;
     historia = new History();
     zadania = new vector<Task*>;
     filesearch = NULL;
@@ -25,9 +24,12 @@ App::~App(){
 	}
     Config::geti()->save_config();
     IO::geti()->log("Sprz¹tanie...");
-    if(filesearch!=NULL) delete filesearch;
-	delete Controls::geti();
+    if(FileSearch::active) delete filesearch;
     tasks_clear(zadania);
+    delete historia;
+	delete Controls::geti();
 	IO::geti()->log("Goodbye World...");
+    delete Config::geti();
+    delete IO::geti();
 	PostQuitMessage(0);
 }

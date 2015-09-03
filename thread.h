@@ -6,10 +6,9 @@
 class Thread{
 public:
     Thread();
-    ~Thread();
+    virtual ~Thread();
     virtual void run() = 0;
-protected:
-    bool running;
+    volatile bool init;
 private:
     HANDLE thread_handle;
 };
@@ -18,6 +17,7 @@ class FileSearch : public Thread {
 public:
     FileSearch();
     ~FileSearch();
+    static volatile bool active;
 private:
     void run();
 };

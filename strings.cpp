@@ -40,7 +40,7 @@ char to_lowercase(char in){
 	return in;
 }
 
-bool str_cmp_lc(string s1, string s2){
+bool string_compare_lower(string s1, string s2){
 	if(s1.length()!=s1.length()) return false;
 	for(unsigned int i=0; i<s1.length(); i++){
 		if(to_lowercase(s1[i])!=to_lowercase(s2[i])) return false;

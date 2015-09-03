@@ -27,7 +27,7 @@ void App::set_progress(double p){
 	SendMessage(Controls::geti()->find("progress_bar"),PBM_SETPOS,(WPARAM)(p*10000),0);
 }
 
-void App::synchroman_init(){
+void App::synchro_search(){
 	set_progress(0);
 	IO::geti()->echo("Wyszukiwanie dysku...");
 	string drive = select_drive();
@@ -36,12 +36,14 @@ void App::synchroman_init(){
 	//dla ka¿dego synchronizowanego katalogu
     stringstream ss;
 	for(unsigned int i=0; i<Config::geti()->synchropaths.size(); i++){
-		ss_clear(ss);
-		ss<<"Przeszukiwanie folderu \""<<drive<<Config::geti()->synchropaths.at(i)->dest<<"\"...";
-		IO::geti()->echo(ss.str());
+        string source = Config::geti()->synchropaths.at(i)->source;
+        string dest = drive+Config::geti()->synchropaths.at(i)->dest;
         double prog_from = double(i)/Config::geti()->synchropaths.size();
         double prog_to = double(i+1)/Config::geti()->synchropaths.size();
-		dirlist_cmp(Config::geti()->synchropaths.at(i)->source, drive+Config::geti()->synchropaths.at(i)->dest, Config::geti()->synchropaths.at(i)->content_check?true:false, prog_from, prog_to);
+        ss_clear(ss);
+		ss<<"Przeszukiwanie folderu \""<<drive<<dest<<"\"...";
+		IO::geti()->echo(ss.str());
+		dirlist_cmp(source, dest, Config::geti()->synchropaths.at(i)->content_check?true:false, prog_from, prog_to);
 	}
 	set_progress(1);
 	ss_clear(ss);
@@ -71,11 +73,7 @@ void App::viewer_open(string file){
     if(Config::geti()->external_viewer.length()==0){
         ShellExecuteA(NULL,"open",file.c_str(),NULL,NULL,SW_SHOW);
     }else{
-        stringstream ss;
-        ss<<"\""<<Config::geti()->external_viewer<<"\" \""<<file<<"\"";
-        if(system(ss.str().c_str())!=0){
-            IO::geti()->error("b³¹d otwierania pliku w edytorze: "+ss.str());
-        }
+        ShellExecuteA(NULL,"open",Config::geti()->external_viewer.c_str(),file.c_str(),NULL,SW_SHOW);
     }
 }
 
@@ -99,7 +97,7 @@ void App::otworz_pliki(){
 }
 
 void App::pb_usun(){
-	if(thread_active){
+	if(FileSearch::active){
 		IO::geti()->error("Trwa przeszukiwanie.");
 		return;
 	}
@@ -129,7 +127,7 @@ void App::pb_odwroc(){
 }
 
 void App::wykonaj_1(){
-	if(thread_active){
+	if(FileSearch::active){
 		IO::geti()->error("Trwa przeszukiwanie.");
 		return;
 	}
@@ -147,7 +145,7 @@ void App::wykonaj_1(){
 }
 
 void App::wykonaj_wszystko(){
-	if(thread_active){
+	if(FileSearch::active){
 		IO::geti()->error("Trwa przeszukiwanie.");
 		return;
 	}
@@ -160,10 +158,4 @@ void App::wykonaj_wszystko(){
     tasks_clear(zadania);
 	show_lista();
 	IO::geti()->echo("Zakoñczono synchronizacjê.");
-}
-
-void App::start_thread(){
-    if(thread_active) return;
-    if(filesearch!=NULL) delete filesearch;
-    filesearch = new FileSearch();
 }
