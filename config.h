@@ -25,9 +25,10 @@ public:
     void save_config();
     vector<string>* get_config_lines(string filename);
     vector<ConfigVariable*>* get_config_variables(string filename);
-    string get_config_string(vector<ConfigVariable*>* variables, string name);
-    int get_config_int(vector<ConfigVariable*>* variables, string name);
-    bool get_config_bool(vector<ConfigVariable*>* variables, string name);
+    string get_config_string(vector<ConfigVariable*>* variables, string name, string domyslny = "");
+    int get_config_int(vector<ConfigVariable*>* variables, string name, int domyslny = 0);
+    bool get_config_bool(vector<ConfigVariable*>* variables, string name, bool domyslny = false);
+    void add_variable_line(vector<string>* lines, ConfigVariable* variable);
     void add_variable(vector<ConfigVariable*>* variables, string name, string value);
     void add_variable(vector<ConfigVariable*>* variables, string name, int value);
     void add_variable(vector<ConfigVariable*>* variables, string name, bool value);

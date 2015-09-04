@@ -18,12 +18,22 @@ IO* IO::geti(){
 
 IO::IO(){
     instance = this;
+    log_init = false;
 }
-
 
 void IO::clear_log(){
     if(!Config::geti()->log_enabled) return;
     clear_file(Config::geti()->log_filename);
+    //w³¹czenie mo¿liwoœci zapisu do loga
+    log_init = true;
+    log("Dziennik zdarzeñ uruchomiony.");
+    if(log_buffer.size()>0){
+        log("Wpisywanie starych zdarzeñ do dziennika...");
+        for(unsigned int i=0; i<log_buffer.size(); i++){
+            log(log_buffer.at(i)); //zapisanie starych logów
+        }
+        log_buffer.clear();
+    }
 }
 
 void IO::delete_log(){
@@ -34,6 +44,10 @@ void IO::delete_log(){
 
 void IO::log(string l){
     if(!Config::geti()->log_enabled) return;
+    if(!log_init){
+        log_buffer.push_back(l);
+        return;
+    }
     if(!file_exists(Config::geti()->log_filename)) clear_log();
     fstream plik;
     plik.open(Config::geti()->log_filename.c_str(), fstream::out|fstream::app);

@@ -8,7 +8,6 @@ void App::event_init(HWND *window){
     //log
     if(Config::geti()->log_enabled){
         IO::geti()->clear_log();
-        IO::geti()->log("Hello World...");
     }
     if(Config::geti()->history_enabled){
         historia->load();

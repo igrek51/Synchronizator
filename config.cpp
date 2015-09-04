@@ -53,10 +53,11 @@ void Config::load_config(){
         IO::geti()->message_box("B³¹d", "Brak pliku konfiguracyjnego - ³adowanie wartoœci domyœlnych");
         return;
     }
+    IO::geti()->log("Wczytywanie ustawieñ z pliku konfiguracyjnego...");
     vector<ConfigVariable*>* variables = get_config_variables(config_filename);
     RECT wnd_rect;
     //odczyt zmiennych
-    save_wnd_pos = get_config_int(variables, "save_wnd_pos");
+    save_wnd_pos = get_config_int(variables, "save_wnd_pos", 0);
     if(save_wnd_pos == 2){ //reset ustawieñ
 		GetWindowRect(App::geti()->main_window, &wnd_rect);
 		wnd_pos_x = wnd_rect.left;
@@ -69,20 +70,20 @@ void Config::load_config(){
 		save_wnd_pos = 0;
 	}
 	//zapisany rozmiar okna
-	save_wnd_size = get_config_int(variables, "save_wnd_size");
+	save_wnd_size = get_config_int(variables, "save_wnd_size", 0);
 	if(save_wnd_size==2){
 		GetWindowRect(App::geti()->main_window, &wnd_rect);
 		window_w = wnd_rect.right-wnd_rect.left;
 		window_h = wnd_rect.bottom-wnd_rect.top;
 		save_wnd_size = 1;
 	}else if(save_wnd_size==1){
-        window_w = get_config_int(variables, "window_w");
-		window_h = get_config_int(variables, "window_h");
+        window_w = get_config_int(variables, "window_w", window_w);
+		window_h = get_config_int(variables, "window_h", window_h);
 	}else{
 		save_wnd_size = 0;
 	}
 	//liczba katalogów do synchronizacji
-	synchro_paths_num = get_config_int(variables, "synchro_paths_num");
+	synchro_paths_num = get_config_int(variables, "synchro_paths_num", 0);
     stringstream ss;
 	for(int i=0; i<synchro_paths_num; i++){
 		ss_clear(ss);
@@ -93,12 +94,12 @@ void Config::load_config(){
         string dest = get_config_string(variables, ss.str());
 		ss_clear(ss);
 		ss<<"synchro_path_"<<i+1<<"_content_check";
-        bool content_check = get_config_bool(variables, ss.str());
+        bool content_check = get_config_bool(variables, ss.str(), true);
         synchropaths.push_back(new SynchroPath(source, dest, content_check));
 	}
-	log_enabled = get_config_bool(variables, "log_enabled");
-	history_enabled = get_config_bool(variables, "history_enabled");
-    external_viewer = get_config_string(variables, "external_viewer");
+	log_enabled = get_config_bool(variables, "log_enabled", true);
+	history_enabled = get_config_bool(variables, "history_enabled", true);
+    external_viewer = get_config_string(variables, "external_viewer", "");
     //sprz¹tanie
     for(unsigned int i=0; i<variables->size(); i++){
         delete variables->at(i);
@@ -107,7 +108,7 @@ void Config::load_config(){
 }
 
 void Config::save_config(){
-	IO::geti()->log("Zapisywanie ustawieñ");
+	IO::geti()->log("Zapisywanie ustawieñ...");
     if(!file_exists(config_filename)){
         IO::geti()->log("Brak pliku konfiguracyjnego - tworzenie nowego");
         clear_file(config_filename);
@@ -137,11 +138,17 @@ void Config::save_config(){
         add_variable(variables, ss.str(), synchropaths.at(i)->content_check);
     }
     //zapisanie zmiennych do pliku
-    ss_clear(ss);
+    vector<string>* lines = get_all_lines(config_filename);
     for(unsigned int i=0; i<variables->size(); i++){
-        ss<<variables->at(i)->name<<" = "<<variables->at(i)->value<<endl<<endl;
+        add_variable_line(lines, variables->at(i));
+    }
+    ss_clear(ss);
+    for(unsigned int i=0; i<lines->size(); i++){
+        ss<<lines->at(i);
+        if(i<lines->size()-1) ss<<endl;
     }
     delete variables;
+    delete lines;
     save_file(config_filename, ss.str());
 }
 
@@ -184,29 +191,43 @@ vector<ConfigVariable*>* Config::get_config_variables(string filename){
     return variables;
 }
 
-string Config::get_config_string(vector<ConfigVariable*>* variables, string name){
-    if(variables==NULL) return "";
+string Config::get_config_string(vector<ConfigVariable*>* variables, string name, string domyslny){
+    if(variables==NULL) return domyslny;
     for(unsigned int i=0; i<variables->size(); i++){
         if(variables->at(i)->name == name){
             return variables->at(i)->value;
         }
     }
     IO::geti()->error("Nie znaleziono zmiennej w pliku konfiguracyjnym: "+name);
-    return "";
+    return domyslny;
 }
 
-int Config::get_config_int(vector<ConfigVariable*>* variables, string name){
+int Config::get_config_int(vector<ConfigVariable*>* variables, string name, int domyslny){
     string s = get_config_string(variables, name);
-    if(s.length()==0) return 0;
+    if(s.length()==0) return domyslny;
     return atoi(s.c_str());
 }
 
-bool Config::get_config_bool(vector<ConfigVariable*>* variables, string name){
+bool Config::get_config_bool(vector<ConfigVariable*>* variables, string name, bool domyslny){
     string s = get_config_string(variables, name);
-    if(s.length()==0) return false;
+    if(s.length()==0) return domyslny;
     if(s=="true") return true;
     if(s=="1") return true;
     return false;
+}
+
+void Config::add_variable_line(vector<string>* lines, ConfigVariable* variable){
+    //szukanie istniej¹cej linii
+    for(unsigned int i=0; i<lines->size(); i++){
+        if(string_begins(lines->at(i), variable->name)){
+            //modyfikacja ju¿ istniejacej linii
+            lines->at(i) = variable->name + " = " + variable->value;
+            return;
+        }
+    }
+    //dodanie nowej linii
+    lines->push_back(variable->name + " = " + variable->value);
+    lines->push_back("");
 }
 
 void Config::add_variable(vector<ConfigVariable*>* variables, string name, string value){

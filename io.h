@@ -14,6 +14,8 @@ private:
 public:
     static IO* geti();
     //  LOG
+    bool log_init;
+    vector<string> log_buffer;
     void clear_log();
     void delete_log();
     void log(string l);

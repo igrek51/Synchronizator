@@ -48,6 +48,14 @@ bool string_compare_lower(string s1, string s2){
 	return true;
 }
 
+bool string_begins(string s1, string s2){
+    if(s1.length() < s2.length()) return false;
+    for(unsigned int i=0; i<s2.length(); i++){
+        if(s1.at(i) != s2.at(i)) return false;
+    }
+    return true;
+}
+
 void ss_clear(stringstream &sstream){
 	sstream.str("");
 	sstream.clear();
