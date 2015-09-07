@@ -9,12 +9,14 @@ App* App::geti(){
     return instance;
 }
 
-App::App(){
+App::App(QWidget *parent) :
+    QMainWindow(parent){
     instance = this;
     historia = NULL;
     historia = new History();
     zadania = new vector<Task*>;
-    filesearch = NULL;
+    //filesearch = NULL;
+    event_init();
 }
 
 App::~App(){
@@ -24,12 +26,15 @@ App::~App(){
 	}
     Config::geti()->save_config();
     IO::geti()->log("Sprz¹tanie...");
-    if(FileSearch::active) delete filesearch;
+    //if(FileSearch::active) delete filesearch;
     tasks_clear(zadania);
     delete historia;
 	delete Controls::geti();
 	IO::geti()->log("Goodbye World...");
     delete Config::geti();
     delete IO::geti();
-	PostQuitMessage(0);
+}
+
+void App::resizeEvent(QResizeEvent*){
+    event_resize();
 }

@@ -1,6 +1,7 @@
 #include "thread.h"
 #include "app.h"
 
+/*
 DWORD WINAPI watek(void *args){
     Thread *thread = (Thread*)args;
     while(!thread->init) Sleep(1);
@@ -45,3 +46,5 @@ void App::filesearch_start(){
     FileSearch::active = true;
     filesearch = new FileSearch();
 }
+
+*/

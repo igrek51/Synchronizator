@@ -1,8 +1,6 @@
 #include "app.h"
-#include <commctrl.h>
 
-void App::event_init(HWND *window){
-    main_window = *window;
+void App::event_init(){
     //ustawienia
     Config::geti()->load_config();
     //log
@@ -15,49 +13,46 @@ void App::event_init(HWND *window){
     //kontrolki
     IO::geti()->log("Tworzenie kontrolek...");
     //groupbox
-    HWND handle = CreateWindowEx(0,WC_BUTTON,"Lista zadañ",WS_CHILD|WS_VISIBLE|BS_GROUPBOX,0,0,0,0,main_window,(HMENU)0,*hInst,0);
-    Controls::geti()->controls.push_back(new Control(handle, "groupbox1"));
-    Controls::geti()->create_button("Szukaj", 0, 0, 0, 0, "szukaj");
-    Controls::geti()->create_button("2 foldery", 0, 0, 0, 0, "2foldery");
-    Controls::geti()->create_button("Porównaj", 0, 0, 0, 0, "porownaj_pliki");
-    Controls::geti()->create_button("Usuñ", 0, 0, 0, 0, "usun");
-    Controls::geti()->create_button("Odwróæ", 0, 0, 0, 0, "odwroc");
-    Controls::geti()->create_button("Wykonaj 1", 0, 0, 0, 0, "wykonaj1");
-    Controls::geti()->create_button("Wykonaj", 0, 0, 0, 0, "wykonaj");
-    //multiline centered static
-    handle = CreateWindowEx(0,WC_EDIT,"",WS_CHILD|WS_VISIBLE|ES_CENTER|ES_MULTILINE|ES_READONLY,0,0,0,0,main_window,0,*hInst,0);
-    Controls::geti()->controls.push_back(new Control(handle, "info"));
-    //listbox
-    handle = CreateWindowEx(WS_EX_CLIENTEDGE,WC_LISTBOX,"",WS_CHILD|WS_VISIBLE|LBS_NOINTEGRALHEIGHT|WS_HSCROLL|WS_VSCROLL|LBS_NOTIFY,0,0,0,0,main_window,0,*hInst,0);
-    Controls::geti()->controls.push_back(new Control(handle, "listbox"));
-    //progress bar
-    handle = CreateWindowEx(0,PROGRESS_CLASS,NULL,WS_CHILD|WS_VISIBLE,0,0,0,0,main_window,(HMENU)200,*hInst,0);
-    Controls::geti()->controls.push_back(new Control(handle, "progress_bar"));
+    Controls::geti()->create_groupbox("Lista zadañ", "groupbox1");
+    Controls::geti()->create_button("Szukaj", "szukaj");
+    Controls::geti()->create_button("2 foldery", "2foldery");
+    Controls::geti()->create_button("Porównaj", "porownaj_pliki");
+    Controls::geti()->create_button("Usuñ", "usun");
+    Controls::geti()->create_button("Odwróæ", "odwroc");
+    Controls::geti()->create_button("Wykonaj 1", "wykonaj1");
+    Controls::geti()->create_button("Wykonaj", "wykonaj");
+    Controls::geti()->create_static_center("", "info");
+    Controls::geti()->create_table("listbox");
+    Controls::geti()->create_progressbar("progress_bar");
     //czcionki
     controls_fonts_set();
     //subclassing
-    IO::geti()->log("Subclassing...");
-    for(unsigned int i=0; i<Controls::geti()->controls.size(); i++){
-        subclass(Controls::geti()->controls.at(i));
-    }
+    /*
+    ui->edit_wait->installEventFilter(this);
+    ui->edit_interval->installEventFilter(this);
+    ui->edit_search->installEventFilter(this);
+    ui->edit_replace->installEventFilter(this);
+    ui->edit_cmd->installEventFilter(this);
+    ui->textedit->installEventFilter(this);
+    this->installEventFilter(this);
+    */
     //ustawiona pozycja, rozmiar okna
-    if(Config::geti()->save_wnd_pos==1 && Config::geti()->save_wnd_size==1){
-        SetWindowPos(main_window,HWND_TOP,Config::geti()->wnd_pos_x,Config::geti()->wnd_pos_y,Config::geti()->window_w,Config::geti()->window_h,0);
-    }else if(Config::geti()->save_wnd_pos==1){
-        SetWindowPos(main_window,HWND_TOP,Config::geti()->wnd_pos_x,Config::geti()->wnd_pos_y,0,0,SWP_NOSIZE);
-    }else if(Config::geti()->save_wnd_size==1){
-        SetWindowPos(main_window,HWND_TOP,0,0,Config::geti()->window_w,Config::geti()->window_h,SWP_NOMOVE);
+    if(Config::geti()->save_wnd_pos==1){
+        this->move(Config::geti()->wnd_pos_x, Config::geti()->wnd_pos_y);
+    }
+    if(Config::geti()->save_wnd_size==1){
+        this->resize(Config::geti()->window_w, Config::geti()->window_h);
     }
     event_resize();
     //progress bar
-	SendMessage(Controls::geti()->find("progress_bar"),PBM_SETRANGE,0,(LPARAM)MAKELONG(0,10000));
 	set_progress(0);
     //tytu³
-	SetWindowText(main_window, (Config::geti()->program_name+" v"+Config::geti()->version).c_str());
+    this->setWindowTitle((Config::geti()->program_name+" v"+Config::geti()->version).c_str());
     IO::geti()->echo("Naciœnij przycisk \"Szukaj\", aby wyszukaæ elementy synchronizacji.");
 }
 
-void App::event_button(WPARAM wParam, LPARAM lParam){
+void App::event_button(string name){
+    /*
     //zmieniony listbox
 	if(lParam==(LPARAM)Controls::geti()->find("listbox")&&HIWORD(wParam)==LBN_SELCHANGE){
 		//listbox_clicked();
@@ -70,7 +65,8 @@ void App::event_button(WPARAM wParam, LPARAM lParam){
     if(name.length()==0) return;
 	//przyciski
 	if(name=="szukaj"){ //szukaj
-		filesearch_start();
+        //filesearch_start();
+        synchro_search();
 	}else if(name=="2foldery"){ //otwórz foldery
 		otworz_foldery();
 	}else if(name=="usun"){ //usuñ
@@ -86,11 +82,37 @@ void App::event_button(WPARAM wParam, LPARAM lParam){
 	}else{
         IO::geti()->error("Zdarzenie nie zosta³o obs³u¿one: "+name);
     }
+    */
 }
 
 void App::event_resize(){
+    /*
+    int w = this->size().width(); //560
+    int h = this->size().height(); //400
+    ui->info_txt->resize(w,60);
+    ui->progress1->resize(w-20,15);
+    ui->groupBox1->resize(w-20,h-90);
+    ui->list1->resize(w-40,h-175);
+
+    ui->pb_szukaj->resize((w-40)/4,60);
+    ui->pb_porownaj->resize((w-40)/4,30);
+    ui->pb_odwroc->resize((w-40)/4,30);
+    ui->pb_wykonaj1->resize((w-40)/4,30);
+    ui->pb_otworz->resize((w-40)/4,30);
+    ui->pb_usun->resize((w-40)/4,30);
+    ui->pb_wykonaj->resize((w-40)/4,30);
+
+    ui->pb_szukaj->move(10,h-150);
+    ui->pb_porownaj->move(10+(w-40)/4,h-150);
+    ui->pb_odwroc->move(10+(w-40)*2/4,h-150);
+    ui->pb_wykonaj1->move(10+(w-40)*3/4,h-150);
+    ui->pb_otworz->move(10+(w-40)/4,h-120);
+    ui->pb_usun->move(10+(w-40)*2/4,h-120);
+    ui->pb_wykonaj->move(10+(w-40)*3/4,h-120);
+    */
     IO::geti()->log("Resize okna - Odœwie¿anie uk³adu kontrolek...");
     if(!Controls::geti()->exists("info")) return;
+    /*
     RECT wnd_rect;
 	GetClientRect(main_window, &wnd_rect);
     int w = wnd_rect.right-wnd_rect.left;
@@ -108,14 +130,17 @@ void App::event_resize(){
     Controls::geti()->resize("progress_bar",10,52,w-20,15);
     Controls::geti()->resize("listbox",20,90,w-40,h-150);
     Controls::geti()->resize("groupbox1",10,70,w-20,h-80);
+    */
 }
 
 void App::event_move(){
+    /*
 	RECT wnd_rect;
 	GetWindowRect(main_window, &wnd_rect);
 	Config::geti()->wnd_pos_x = wnd_rect.left;
 	Config::geti()->wnd_pos_y = wnd_rect.top;
 	Config::geti()->window_w = wnd_rect.right-wnd_rect.left;
 	Config::geti()->window_h = wnd_rect.bottom-wnd_rect.top;
+    */
 }
 

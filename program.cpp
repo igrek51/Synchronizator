@@ -2,7 +2,17 @@
 #include "strings.h"
 #include "files.h"
 
-#include <commctrl.h>
+#include <QLabel>
+#include <QProgressBar>
+
+void App::buttons_enable(bool enable){
+    Controls::geti()->find("porownaj_pliki")->setEnabled(enable);
+    Controls::geti()->find("odwroc")->setEnabled(enable);
+    Controls::geti()->find("wykonaj1")->setEnabled(enable);
+    Controls::geti()->find("2foldery")->setEnabled(enable);
+    Controls::geti()->find("usun")->setEnabled(enable);
+    Controls::geti()->find("wykonaj")->setEnabled(enable);
+}
 
 void App::controls_fonts_set(){
     for(unsigned int i=0; i<Controls::geti()->controls.size(); i++){
@@ -12,19 +22,13 @@ void App::controls_fonts_set(){
     }
 }
 
-void App::text_vcenter(){
-	int lines = SendMessage(Controls::geti()->find(Config::geti()->output_control),EM_GETLINECOUNT,0,0);
-	int height = Config::geti()->buttons_fontsize*lines;
-	int ypos = (50-height)/2;
-	if(ypos<0) ypos=0;
-	if(height>52) height=52;
-    Controls::geti()->resize(Config::geti()->output_control, 0,ypos,Config::geti()->window_w,height);
-}
-
 void App::set_progress(double p){
-	if(p>1) p=1;
-	if(p<0) p=0;
-	SendMessage(Controls::geti()->find("progress_bar"),PBM_SETPOS,(WPARAM)(p*10000),0);
+    if(p>1) p=1;
+    if(p<0) p=0;
+    QProgressBar* handle = dynamic_cast<QProgressBar*>(Controls::geti()->find("progress_bar"));
+    if(handle==NULL) return;
+    handle->setValue(p*100);
+    this->repaint();
 }
 
 void App::synchro_search(){
@@ -58,6 +62,7 @@ void App::synchro_search(){
 }
 
 void App::otworz_foldery(){
+    /*
 	int n = listbox_current();
 	if(n==-1){
 		IO::geti()->error("Nie wybrano elementu.");
@@ -67,17 +72,21 @@ void App::otworz_foldery(){
     Task* task = zadania->at(n);
     ShellExecuteA(NULL,NULL,"explorer.exe",task->dir1.c_str(),NULL,SW_SHOW);
     ShellExecuteA(NULL,NULL,"explorer.exe",task->dir2.c_str(),NULL,SW_SHOW);
+    */
 }
 
 void App::viewer_open(string file){
+    /*
     if(Config::geti()->external_viewer.length()==0){
         ShellExecuteA(NULL,"open",file.c_str(),NULL,NULL,SW_SHOW);
     }else{
         ShellExecuteA(NULL,"open",Config::geti()->external_viewer.c_str(),file.c_str(),NULL,SW_SHOW);
     }
+    */
 }
 
 void App::otworz_pliki(){
+    /*
 	int n = listbox_current();
 	if(n==-1){
 		IO::geti()->error("Nie wybrano elementu.");
@@ -94,9 +103,11 @@ void App::otworz_pliki(){
     files_cmp(task->dir1+"\\"+task->filename, task->dir2+"\\"+task->filename, true);
     Sleep(300);
     SetForegroundWindow(main_window);
+    */
 }
 
 void App::pb_usun(){
+    /*
 	if(FileSearch::active){
 		IO::geti()->error("Trwa przeszukiwanie.");
 		return;
@@ -110,6 +121,7 @@ void App::pb_usun(){
     zadania->erase(zadania->begin() + cr);
 	show_lista();
     IO::geti()->echo("Usuniêto element synchronizacji z listy.");
+    */
 }
 
 void App::pb_odwroc(){
@@ -127,6 +139,7 @@ void App::pb_odwroc(){
 }
 
 void App::wykonaj_1(){
+    /*
 	if(FileSearch::active){
 		IO::geti()->error("Trwa przeszukiwanie.");
 		return;
@@ -142,9 +155,11 @@ void App::wykonaj_1(){
 	show_lista();
 	listbox_select(cr);
     IO::geti()->echo("Wykonano zadania 1 elementu synchronizacji.");
+    */
 }
 
 void App::wykonaj_wszystko(){
+    /*
 	if(FileSearch::active){
 		IO::geti()->error("Trwa przeszukiwanie.");
 		return;
@@ -158,4 +173,5 @@ void App::wykonaj_wszystko(){
     tasks_clear(zadania);
 	show_lista();
 	IO::geti()->echo("Zakoñczono synchronizacjê.");
+    */
 }

@@ -1,8 +1,7 @@
 #ifndef THREAD_H
 #define THREAD_H
 
-#include <windows.h>
-
+/*
 class Thread{
 public:
     Thread();
@@ -21,5 +20,6 @@ public:
 private:
     void run();
 };
+*/
 
 #endif

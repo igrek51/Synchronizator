@@ -5,7 +5,7 @@
 #include "app.h"
 
 #include <fstream>
-#include <windows.h>
+#include <QMessageBox>
 
 IO* IO::instance = NULL;
 
@@ -33,12 +33,6 @@ void IO::clear_log(){
             log(log_buffer.at(i)); //zapisanie starych logów
         }
         log_buffer.clear();
-    }
-}
-
-void IO::delete_log(){
-    if(file_exists(Config::geti()->log_filename)){
-        DeleteFile(Config::geti()->log_filename.c_str());
     }
 }
 
@@ -87,9 +81,9 @@ void IO::critical_error(string l){
 
 
 void IO::echo(string s){
+    //ui->info_txt->setText(i.c_str());
     Controls::geti()->set_text(Config::geti()->output_control, s.c_str());
-	log(s);
-    App::geti()->text_vcenter();
+    log(s);
 }
 
 void IO::echo(int e){
@@ -103,5 +97,9 @@ void IO::message_box(string title, string message){
         message = title;
         title = "Wiadomoœæ";
     }
-    MessageBox(NULL, message.c_str(), title.c_str(), MB_OK|MB_ICONINFORMATION);
+    QMessageBox msgBox;
+    msgBox.setText(message.c_str());
+    msgBox.setWindowTitle(title.c_str());
+    msgBox.setStandardButtons(QMessageBox::Ok);
+    msgBox.exec();
 }

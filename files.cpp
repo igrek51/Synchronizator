@@ -2,7 +2,7 @@
 #include "io.h"
 #include "strings.h"
 #include <fstream>
-#include <windows.h>
+#include <QDir>
 
 File::File(string name, int size){
     this->name = name;
@@ -27,10 +27,7 @@ bool file_exists(string name){
 }
 
 bool dir_exists(string name){
-    DWORD ftyp = GetFileAttributesA(name.c_str());
-    if(ftyp==INVALID_FILE_ATTRIBUTES) return false;
-    if(ftyp&FILE_ATTRIBUTE_DIRECTORY) return true;
-    return false;
+    return QDir(name.c_str()).exists();
 }
 
 bool files_cmp(string file1, string file2, bool out){
@@ -192,44 +189,40 @@ vector<File*>* list_dir(string dir){
         IO::geti()->error("brak folderu: "+dir);
         return NULL;
     }
-    WIN32_FIND_DATAA ffd;
-    HANDLE hFind = FindFirstFileA((dir+"\\*").c_str(), &ffd);
-    if(hFind==INVALID_HANDLE_VALUE){
-        IO::geti()->error("blad otwierania folderu "+dir);
-        return NULL;
-    }
     vector<File*>* files = new vector<File*>;
-    do{
-        const char *stemp = string(ffd.cFileName).c_str();
+    QDir directory(dir.c_str());
+    directory.setFilter(QDir::Files | QDir::Dirs | QDir::Hidden | QDir::NoSymLinks);
+    directory.setSorting(QDir::Name);
+    QFileInfoList list = directory.entryInfoList();
+    for (int i = 0; i < list.size(); ++i) {
+        QFileInfo fileInfo = list.at(i);
+        const char *stemp = fileInfo.fileName().toStdString().c_str();
         if(strcmp(stemp,".")==0) continue;
         if(strcmp(stemp,"..")==0) continue;
         if(strcmp(stemp,"desktop.ini")==0) continue;
-        if(ffd.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY){
-			//katalog
-            files->push_back(new File(ffd.cFileName, -1));
-		}else{
-			//plik
-            files->push_back(new File(ffd.cFileName, ffd.nFileSizeLow));
-		}
-    }while(FindNextFileA(hFind, &ffd)!=0);
-    FindClose(hFind);
+        if(fileInfo.isDir()){
+            //katalog
+            files->push_back(new File(fileInfo.fileName().toStdString(), -1));
+        }else{
+            //plik
+            files->push_back(new File(fileInfo.fileName().toStdString(), fileInfo.size()));
+        }
+    }
     return files;
 }
 
 vector<string>* get_drives(){
     vector<string>* drives = new vector<string>;
-	int max_buffer = 256;
-	char *drives_text = new char [max_buffer];
-	int result = GetLogicalDriveStrings(max_buffer, drives_text);
-	if(result<=0 || result>max_buffer){
-		IO::geti()->error("blad odczytywania dostepnych dyskow");
-		return drives;
-	}
-	char* single_drive = drives_text;
-	while(single_drive < drives_text+result){
-        drives->push_back(single_drive);
-		single_drive += strlen(single_drive)+1;
-	}
-	delete[] drives_text;
-	return drives;
+    QDir directory("/media/igrek");
+    directory.setFilter(QDir::Files | QDir::Dirs | QDir::Hidden | QDir::NoSymLinks);
+    directory.setSorting(QDir::Name);
+    QFileInfoList list = directory.entryInfoList();
+    for(int i = 0; i < list.size(); ++i) {
+        QFileInfo fileInfo = list.at(i);
+        const char *fname = fileInfo.fileName().toStdString().c_str();
+        if(strcmp(fname,".")==0) continue;
+        if(strcmp(fname,"..")==0) continue;
+        drives->push_back("/media/igrek/"+fileInfo.fileName().toStdString());
+    }
+    return drives;
 }

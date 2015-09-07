@@ -21,26 +21,25 @@ string Task::name(){
 vector<string>* Task::cmds(){
     vector<string>* cmdsy = new vector<string>;
     switch(code){
-		case TASK_BRAK_FOLDERU:{
-			cmdsy->push_back("md \""+dir1+"\\"+filename+"\"");
-			cmdsy->push_back("xcopy \""+dir1+"\\"+filename+"\\*.*\" \""+dir2+"\\"+filename+"\\*.*\" /e /c");
+        case TASK_BRAK_FOLDERU:{
+            cmdsy->push_back("cp \""+dir1+"/"+filename+"\" \""+dir2+"/"+filename+"\" -R");
+        }break;
+        case TASK_BRAK_PLIKU:{
+            cmdsy->push_back("cp \""+dir1+"/"+filename+"\" \""+dir2+"/"+filename+"\"");
 		}break;
-		case TASK_BRAK_PLIKU:{
-			cmdsy->push_back("copy \""+dir1+"\\"+filename+"\" \""+dir2+"\\"+filename+"\"");
-		}break;
-		case TASK_INNY_ROZMIAR:{
-			cmdsy->push_back("del \""+dir2+"\\"+filename+"\"");
-			cmdsy->push_back("copy \""+dir1+"\\"+filename+"\" \""+dir2+"\\"+filename+"\"");
+        case TASK_INNY_ROZMIAR:{
+            cmdsy->push_back("rm \""+dir2+"/"+filename+"\"");
+            cmdsy->push_back("cp \""+dir1+"/"+filename+"\" \""+dir2+"/"+filename+"\"");
 		}break;
 		case TASK_INNA_WERSJA:{
-			cmdsy->push_back("del \""+dir2+"\\"+filename+"\"");
-			cmdsy->push_back("copy \""+dir1+"\\"+filename+"\" \""+dir2+"\\"+filename+"\"");
+            cmdsy->push_back("rm \""+dir2+"/"+filename+"\"");
+            cmdsy->push_back("cp \""+dir1+"/"+filename+"\" \""+dir2+"/"+filename+"\"");
 		}break;
 		case TASK_ZBEDNY_FOLDER:{
-			cmdsy->push_back("rd \""+dir2+"\\"+filename+"\" /s /q");
+            cmdsy->push_back("rm \""+dir2+"/"+filename+"\" -R");
 		}break;
-		case TASK_ZBEDNY_PLIK:{
-			cmdsy->push_back("del \""+dir2+"\\"+filename+"\"");
+        case TASK_ZBEDNY_PLIK:{
+            cmdsy->push_back("rm \""+dir2+"/"+filename+"\"");
 		}break;
 	}
     return cmdsy;

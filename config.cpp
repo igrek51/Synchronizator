@@ -26,7 +26,7 @@ Config::Config(){
     buttons_fontface = "MS Shell Dlg 2";
     buttons_fontsize = 13;
     version = VERSION;
-    version += " (win)";
+    version += " (linux)";
     output_control = "info";
     //  Zmienne
     window_w = 560;
@@ -55,13 +55,11 @@ void Config::load_config(){
     }
     IO::geti()->log("Wczytywanie ustawieñ z pliku konfiguracyjnego...");
     vector<ConfigVariable*>* variables = get_config_variables(config_filename);
-    RECT wnd_rect;
     //odczyt zmiennych
     save_wnd_pos = get_config_int(variables, "save_wnd_pos", 0);
     if(save_wnd_pos == 2){ //reset ustawieñ
-		GetWindowRect(App::geti()->main_window, &wnd_rect);
-		wnd_pos_x = wnd_rect.left;
-		wnd_pos_y = wnd_rect.top;
+        wnd_pos_x = App::geti()->pos().x();
+        wnd_pos_y = App::geti()->pos().y();
 		save_wnd_pos = 1;
 	}else if(save_wnd_pos==1){
 		wnd_pos_x = get_config_int(variables, "wnd_pos_x");
@@ -71,10 +69,9 @@ void Config::load_config(){
 	}
 	//zapisany rozmiar okna
 	save_wnd_size = get_config_int(variables, "save_wnd_size", 0);
-	if(save_wnd_size==2){
-		GetWindowRect(App::geti()->main_window, &wnd_rect);
-		window_w = wnd_rect.right-wnd_rect.left;
-		window_h = wnd_rect.bottom-wnd_rect.top;
+    if(save_wnd_size==2){
+        window_w = App::geti()->size().width();
+        window_h = App::geti()->size().height();
 		save_wnd_size = 1;
 	}else if(save_wnd_size==1){
         window_w = get_config_int(variables, "window_w", window_w);

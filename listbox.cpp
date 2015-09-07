@@ -1,52 +1,57 @@
 #include "app.h"
 #include "strings.h"
+#include <QTableWidget>
+#include <QtWidgets/QHeaderView>
+
+void App::listbox_init(){
+    QTableWidget* listbox = dynamic_cast<QTableWidget*>(Controls::geti()->find("listbox"));
+    for(int i=0; i<2; i++) listbox->insertColumn(0);
+    listbox->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+}
 
 int App::listbox_count(){
-	return SendMessage(Controls::geti()->find("listbox"),LB_GETCOUNT,0,0);
+    QTableWidget* listbox = dynamic_cast<QTableWidget*>(Controls::geti()->find("listbox"));
+    return listbox->rowCount();
 }
 
 void App::listbox_delete(int nr){
-	SendMessage(Controls::geti()->find("listbox"),LB_DELETESTRING,nr,0);
+    QTableWidget* listbox = dynamic_cast<QTableWidget*>(Controls::geti()->find("listbox"));
+    listbox->removeRow(nr);
 }
 
 void App::listbox_clear(){
 	while(listbox_count()>0) listbox_delete(0);
 }
 
-void App::listbox_add(string s){
-	SendMessage(Controls::geti()->find("listbox"),LB_ADDSTRING,NULL,(LPARAM)s.c_str());
+void App::listbox_add(string s1, string s2){
+    QTableWidget* listbox = dynamic_cast<QTableWidget*>(Controls::geti()->find("listbox"));
+    listbox->insertRow(listbox->rowCount());
+    QTableWidgetItem *item = new QTableWidgetItem(s1.c_str());
+    item->setTextAlignment(Qt::AlignRight|Qt::AlignVCenter);
+    listbox->setItem(listbox->rowCount()-1,0,item);
+    item = new QTableWidgetItem(s2.c_str());
+    item->setTextAlignment(Qt::AlignLeft|Qt::AlignVCenter);
+    listbox->setItem(listbox->rowCount()-1,1,item);
 }
 
 int App::listbox_current(){
-	int ret = SendMessage(Controls::geti()->find("listbox"),LB_GETCURSEL,0,0);
-	if(ret==LB_ERR) return -1;
-	return ret;
+    QTableWidget* listbox = dynamic_cast<QTableWidget*>(Controls::geti()->find("listbox"));
+    QList <QTableWidgetItem*> zaznaczone = listbox->selectedItems();
+    if(zaznaczone.size()==0) return -1;
+    return listbox->currentRow();
 }
 
 void App::listbox_select(int nr){
-	if(nr>=listbox_count()) nr=-1;
-	SendMessage(Controls::geti()->find("listbox"),LB_SETCURSEL,nr,0);
+    QTableWidget* listbox = dynamic_cast<QTableWidget*>(Controls::geti()->find("listbox"));
+    if(nr>=listbox_count()) nr = -1;
+    listbox->setCurrentCell(nr, 0);
 }
 
 void App::show_lista(){
-	listbox_clear();
-	HDC dcList = GetDC(Controls::geti()->find("listbox"));
-	SIZE textSize;
-	HFONT hF = (HFONT)SendMessage(Controls::geti()->find("listbox"),WM_GETFONT,0,0);
-	HGDIOBJ hOld = SelectObject(dcList,hF);
-    stringstream ss;
-    int max_w = 0;
+    listbox_clear();
     for(unsigned int i=0; i<zadania->size(); i++){
-        ss_clear(ss);
-        ss<<zadania->at(i)->name()<<": "<<zadania->at(i)->dir2<<"\\"<<zadania->at(i)->filename;
-		listbox_add(ss.str());
-        //d³ugoœæ tekstu w pixelach
-		GetTextExtentPoint32(dcList,ss.str().c_str(),ss.str().length(),&textSize);
-		if(textSize.cx > max_w) max_w = textSize.cx;
+        listbox_add(zadania->at(i)->name(), zadania->at(i)->dir2+"/"+zadania->at(i)->filename);
     }
-	SelectObject(dcList,hOld);
-	ReleaseDC(Controls::geti()->find("listbox"),dcList);
-	SendMessage(Controls::geti()->find("listbox"),LB_SETHORIZONTALEXTENT,max_w,NULL);
 }
 
 void App::listbox_clicked(){

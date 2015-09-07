@@ -17,7 +17,6 @@ public:
     bool log_init;
     vector<string> log_buffer;
     void clear_log();
-    void delete_log();
     void log(string l);
     void log(int l);
     void log(string s, int l);

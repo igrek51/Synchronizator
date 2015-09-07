@@ -7,23 +7,22 @@
 #include "history.h"
 #include "thread.h"
 
-#include <windows.h>
+#include <QMainWindow>
 #include <iostream>
 
 using namespace std;
 
-class App{
+class App : public QMainWindow{
+    Q_OBJECT
 private:
     static App* instance;
-    App();
 public:
+    explicit App(QWidget *parent = 0);
     static App* geti();
 	~App();
-    HWND main_window;
-	HINSTANCE* hInst;
 	//Events
-	void event_init(HWND *window);
-	void event_button(WPARAM wParam, LPARAM lParam);
+    void event_init();
+    void event_button(string name);
 	void event_resize();
 	void event_move();
     //historia
@@ -34,7 +33,6 @@ public:
     void execute_all_tasks(vector<Task*>* zadania);
 	//program
     void controls_fonts_set();
-    void text_vcenter();
 	void set_progress(double p);
 	void synchro_search();
 	void otworz_foldery();
@@ -44,25 +42,22 @@ public:
 	void pb_odwroc();
 	void wykonaj_1();
 	void wykonaj_wszystko();
+    void buttons_enable(bool enable);
 	//listbox
+    void listbox_init();
 	void show_lista();
 	int listbox_count();
 	void listbox_delete(int nr);
 	void listbox_clear();
-	void listbox_add(string s);
+    void listbox_add(string s1, string s2);
 	int listbox_current();
 	void listbox_select(int nr);
 	void listbox_clicked();
-	//subclassing
-    WNDPROC windowProc, wndproc_new;
-    LRESULT CALLBACK subclass_wndproc_new(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
-    void subclass(Control* kontrolka);
-    void subclass(string name);
-    void un_subclass(Control* kontrolka);
-    void un_subclass(string name);
 	//w¹tki
     void filesearch_start();
-    FileSearch* filesearch;
+    //FileSearch* filesearch;
+
+    void resizeEvent(QResizeEvent*);
 };
 
 #endif
