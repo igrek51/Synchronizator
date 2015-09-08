@@ -53,11 +53,15 @@ public:
 	int listbox_current();
 	void listbox_select(int nr);
 	void listbox_clicked();
-	//w¹tki
+	//wÄ…tki
     void filesearch_start();
     //FileSearch* filesearch;
 
+    //  Eventy
     void resizeEvent(QResizeEvent*);
+    void moveEvent(QMoveEvent*);
+    void closeEvent(QCloseEvent*);
+    bool eventFilter(QObject* object, QEvent* event);
 };
 
 #endif

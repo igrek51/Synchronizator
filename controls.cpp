@@ -20,9 +20,11 @@ Controls* Controls::geti(){
 Controls::Controls(){
     instance = this;
     central_widget = new QWidget(App::geti());
-    layout = new QVBoxLayout(central_widget);
-
+    layout = new QGridLayout(central_widget);
+    layout->setContentsMargins(0,0,0,0);
+    layout->setSpacing(0);
     central_widget->setLayout(layout);
+    layout->setEnabled(false);
     App::geti()->setCentralWidget(central_widget);
 }
 
@@ -77,7 +79,7 @@ bool Controls::exists(string name){
 }
 
 string Controls::get_button_name(int button_nr){
-    //jeœli numer jest poprawny
+    //jeÅ›li numer jest poprawny
     if(button_nr>=1 && button_nr<=(int)controls.size()){
         return controls.at(button_nr-1)->name;
     }
@@ -87,52 +89,63 @@ string Controls::get_button_name(int button_nr){
     return "";
 }
 
+string Controls::get_object_name(QObject* o){
+    for(unsigned int i=0; i<controls.size(); i++){
+        if(controls.at(i)->handle == o){
+            return controls.at(i)->name;
+        }
+    }
+    IO::geti()->error("Nie odnaleziono obiektu");
+    return "";
+}
+
+
+void Controls::add_control(QWidget* handle, string name){
+    handle->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    handle->setMinimumHeight(10);
+    handle->setMinimumWidth(10);
+    layout->addWidget(handle);
+    controls.push_back(new Control(handle, name));
+}
+
 void Controls::create_button(string text, string name){
     QPushButton* nowy_widget = new QPushButton(text.c_str());
-    layout->addWidget(nowy_widget);
-    controls.push_back(new Control(nowy_widget, name));
+    add_control(nowy_widget, name);
 }
 
 void Controls::create_edit(string text, string name){
     QLineEdit* nowy_widget = new QLineEdit(text.c_str());
-    layout->addWidget(nowy_widget);
-    controls.push_back(new Control(nowy_widget, name));
+    add_control(nowy_widget, name);
 }
 
 void Controls::create_edit_center(string text, string name){
     QLineEdit* nowy_widget = new QLineEdit(text.c_str());
-    layout->addWidget(nowy_widget);
-    controls.push_back(new Control(nowy_widget, name));
+    add_control(nowy_widget, name);
 }
 
 void Controls::create_static(string text, string name){
     QLabel* nowy_widget = new QLabel(text.c_str());
-    layout->addWidget(nowy_widget);
-    controls.push_back(new Control(nowy_widget, name));
+    add_control(nowy_widget, name);
 }
 
 void Controls::create_static_center(string text, string name){
     QLabel* nowy_widget = new QLabel(text.c_str());
-    layout->addWidget(nowy_widget);
-    controls.push_back(new Control(nowy_widget, name));
+    add_control(nowy_widget, name);
 }
 
 void Controls::create_groupbox(string text, string name){
     QGroupBox* nowy_widget = new QGroupBox(text.c_str());
-    layout->addWidget(nowy_widget);
-    controls.push_back(new Control(nowy_widget, name));
+    add_control(nowy_widget, name);
 }
 
 void Controls::create_progressbar(string name){
     QProgressBar* nowy_widget = new QProgressBar();
-    layout->addWidget(nowy_widget);
-    controls.push_back(new Control(nowy_widget, name));
+    add_control(nowy_widget, name);
 }
 
 void Controls::create_table(string name){
     QTableWidget* nowy_widget = new QTableWidget();
-    layout->addWidget(nowy_widget);
-    controls.push_back(new Control(nowy_widget, name));
+    add_control(nowy_widget, name);
 }
 
 
@@ -187,6 +200,7 @@ string Controls::get_text(string control_name){
     if(gb!=NULL){
         return gb->title().toStdString();
     }
+    return "";
 }
 
 int Controls::get_int(string control_name){
@@ -207,19 +221,31 @@ void Controls::resize(string control_name, int x, int y, int w, int h){
     Control* kontrolka = find_control(control_name);
     if(kontrolka==NULL) return;
     if(kontrolka->handle==NULL) return;
-    if(x>0 && y>0) kontrolka->handle->resize(w, h);
-    if(w>0 && h>0) kontrolka->handle->move(x, y);
+    if(x!=-1 && y!=-1){
+        kontrolka->handle->move(x, y);
+    }
+    if(w>0 && h>0){
+        kontrolka->handle->resize(w, h);
+    }
 }
 
 
 void Controls::set_font(QWidget* handle, string fontface, int fontsize){
-    /*
-    if(kontrolka==NULL) return;
-    HFONT hFont = CreateFont(fontsize, 0, 0, 0, FW_NORMAL, 0, 0, 0, ANSI_CHARSET, 0, 0, 0, 0, fontface.c_str());
-	SendMessage(kontrolka, WM_SETFONT, (WPARAM)hFont, true);
-    */
+    if(handle==NULL) return;
+    QFont font = handle->font();
+    font.setPixelSize(fontsize);
+    font.setFamily(fontface.c_str());
+    handle->setFont(font);
 }
 
 void Controls::set_font(string name, string fontface, int fontsize){
     set_font(find(name), fontface, fontsize);
+}
+
+
+void Controls::subclass(string name, QObject* event_listener){
+    Control* kontrolka = find_control(name);
+    if(kontrolka==NULL) return;
+    if(kontrolka->handle==NULL) return;
+    kontrolka->handle->installEventFilter(event_listener);
 }

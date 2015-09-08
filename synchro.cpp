@@ -13,24 +13,29 @@ SynchroPath::SynchroPath(string source, string dest, bool content_check){
 
 string select_drive(){
     vector<string>* drives = get_drives();
+    if(drives->size()==0){
+        IO::geti()->error("Brak dostƒôpnych dysk√≥w.");
+        delete drives;
+        return "";
+    }
 	string selected_drive = "";
 	if(Config::geti()->synchropaths.size()==0){
-		IO::geti()->error("Nie wybrano synchronizowanych folderÛw.");
+		IO::geti()->error("Nie wybrano synchronizowanych folder√≥w.");
         delete drives;
 		return "";
 	}
     stringstream ss;
-	//sprawdzenie istnienia folderÛw na dysku ürÛd≥owym
+	//sprawdzenie istnienia folder√≥w na dysku ≈∫r√≥d≈Çowym
 	for(unsigned int i=0; i<Config::geti()->synchropaths.size(); i++){
 		if(!dir_exists(Config::geti()->synchropaths.at(i)->source)){
 			ss_clear(ss);
-			ss<<"Brak katalogu \""<<Config::geti()->synchropaths.at(i)->source<<"\" na dysku ürÛd≥owym";
+			ss<<"Brak katalogu \""<<Config::geti()->synchropaths.at(i)->source<<"\" na dysku ≈∫r√≥d≈Çowym";
 			IO::geti()->error(ss.str());
             delete drives;
 			return "";
 		}
 	}
-	//szukanie istnienia folderÛw na dysku docelowym
+	//szukanie istnienia folder√≥w na dysku docelowym
 	for(unsigned int i=0; i<drives->size(); i++){
 		bool valid = true;
 		for(unsigned int j=0; j<Config::geti()->synchropaths.size(); j++){
@@ -47,13 +52,11 @@ string select_drive(){
 	if(selected_drive.length()==0){
 		ss_clear(ss);
 		ss<<"Nie znaleziono odpowiedniego dysku.\r\n";
-		ss<<"DostÍpne dyski: ";
-        vector<string>* drives = get_drives();
+        ss<<"Dostƒôpne dyski: ";
         for(unsigned int i=0; i<drives->size(); i++){
             ss<<drives->at(i);
             if(i<drives->size()-1) ss<<", ";
         }
-        delete drives;
 		IO::geti()->error(ss.str());
         delete drives;
 		return "";
@@ -79,9 +82,9 @@ void dirlist_cmp(string head1name, string head2name, bool content_check, double 
 			if(szuk==NULL){
                 add_task(wzor->name,head1name,head2name,TASK_BRAK_FOLDERU);
 			}else{
-				if(szuk->size!=-1){ //znalaz≥o, lecz jest plikiem
+				if(szuk->size!=-1){ //znalaz≈Ço, lecz jest plikiem
                     add_task(wzor->name,head1name,head2name,TASK_BRAK_FOLDERU);
-				}else{ //znalaz≥o, jest teø katalogiem
+				}else{ //znalaz≈Ço, jest te≈º katalogiem
                     double progress1 = (prog_to-prog_from)*i/dir1->size()+prog_from;
                     double progress2 = (prog_to-prog_from)*(i+1)/dir1->size()+prog_from;
                     //rekurencja
@@ -107,7 +110,7 @@ void dirlist_cmp(string head1name, string head2name, bool content_check, double 
     }
     for(unsigned int i=0; i<dir2->size(); i++){ //sprawdzanie zbednych plikow z drugiej listy
         wzor = dir2->at(i);
-        if(file_search(dir1, wzor->name)==NULL){ //jeúli nie znajdzie
+        if(file_search(dir1, wzor->name)==NULL){ //je≈õli nie znajdzie
 			if(wzor->size==-1){ //folder
                 add_task(wzor->name,head1name,head2name,TASK_ZBEDNY_FOLDER);
 			}else{ //plik

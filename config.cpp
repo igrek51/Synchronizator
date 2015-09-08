@@ -18,7 +18,7 @@ Config* Config::geti(){
 
 Config::Config(){
     instance = this;
-    //ustawienia domyúlne
+    //ustawienia domy≈õlne
     program_name = "Igrek Synchronizator";
     config_filename = "conf.ini";
     log_filename = "log.txt";
@@ -50,14 +50,14 @@ ConfigVariable::ConfigVariable(string name, string value){
 
 void Config::load_config(){
     if(!file_exists(config_filename)){
-        IO::geti()->message_box("B≥πd", "Brak pliku konfiguracyjnego - ≥adowanie wartoúci domyúlnych");
+        IO::geti()->message_box("B≈ÇƒÖd", "Brak pliku konfiguracyjnego - ≈Çadowanie warto≈õci domy≈õlnych");
         return;
     }
-    IO::geti()->log("Wczytywanie ustawieÒ z pliku konfiguracyjnego...");
+    IO::geti()->log("Wczytywanie ustawie≈Ñ z pliku konfiguracyjnego...");
     vector<ConfigVariable*>* variables = get_config_variables(config_filename);
     //odczyt zmiennych
     save_wnd_pos = get_config_int(variables, "save_wnd_pos", 0);
-    if(save_wnd_pos == 2){ //reset ustawieÒ
+    if(save_wnd_pos == 2){ //reset ustawie≈Ñ
         wnd_pos_x = App::geti()->pos().x();
         wnd_pos_y = App::geti()->pos().y();
 		save_wnd_pos = 1;
@@ -70,8 +70,6 @@ void Config::load_config(){
 	//zapisany rozmiar okna
 	save_wnd_size = get_config_int(variables, "save_wnd_size", 0);
     if(save_wnd_size==2){
-        window_w = App::geti()->size().width();
-        window_h = App::geti()->size().height();
 		save_wnd_size = 1;
 	}else if(save_wnd_size==1){
         window_w = get_config_int(variables, "window_w", window_w);
@@ -79,7 +77,7 @@ void Config::load_config(){
 	}else{
 		save_wnd_size = 0;
 	}
-	//liczba katalogÛw do synchronizacji
+	//liczba katalog√≥w do synchronizacji
 	synchro_paths_num = get_config_int(variables, "synchro_paths_num", 0);
     stringstream ss;
 	for(int i=0; i<synchro_paths_num; i++){
@@ -97,7 +95,7 @@ void Config::load_config(){
 	log_enabled = get_config_bool(variables, "log_enabled", true);
 	history_enabled = get_config_bool(variables, "history_enabled", true);
     external_viewer = get_config_string(variables, "external_viewer", "");
-    //sprzπtanie
+    //sprzƒÖtanie
     for(unsigned int i=0; i<variables->size(); i++){
         delete variables->at(i);
     }
@@ -105,12 +103,12 @@ void Config::load_config(){
 }
 
 void Config::save_config(){
-	IO::geti()->log("Zapisywanie ustawieÒ...");
+	IO::geti()->log("Zapisywanie ustawie≈Ñ...");
     if(!file_exists(config_filename)){
         IO::geti()->log("Brak pliku konfiguracyjnego - tworzenie nowego");
         clear_file(config_filename);
     }
-    //lista zmiennych - uzupe≥nienie
+    //lista zmiennych - uzupe≈Çnienie
     vector<ConfigVariable*>* variables = new vector<ConfigVariable*>;
     add_variable(variables, "save_wnd_pos", save_wnd_pos);
     add_variable(variables, "wnd_pos_x", wnd_pos_x);
@@ -153,12 +151,12 @@ vector<string>* Config::get_config_lines(string filename){
     vector<string>* lines = get_all_lines(filename);
     if(lines==NULL) return NULL;
     for(int i=0; i<(int)lines->size(); i++){
-        if(lines->at(i).length()==0){ //usuniÍcie pustych elementÛw
+        if(lines->at(i).length()==0){ //usuniƒôcie pustych element√≥w
             lines->erase(lines->begin()+i);
             i--;
             continue;
         }
-        if(lines->at(i).length()>=2){ //usuniÍcie komentarzy
+        if(lines->at(i).length()>=2){ //usuniƒôcie komentarzy
             if(lines->at(i)[0]==';' || (lines->at(i)[0]=='/' && lines->at(i)[1]=='/')){
                 lines->erase(lines->begin()+i);
                 i--;
@@ -172,7 +170,7 @@ vector<ConfigVariable*>* Config::get_config_variables(string filename){
     vector<string>* lines = get_config_lines(filename);
     if(lines==NULL) return NULL;
     vector<ConfigVariable*>* variables = new vector<ConfigVariable*>;
-    //wy≥uskanie nazwy i wartoúci
+    //wy≈Çuskanie nazwy i warto≈õci
     for(unsigned int i=0; i<lines->size(); i++){
         //szukanie znaku =
         for(unsigned int j=1; j<lines->at(i).length(); j++){
@@ -214,10 +212,10 @@ bool Config::get_config_bool(vector<ConfigVariable*>* variables, string name, bo
 }
 
 void Config::add_variable_line(vector<string>* lines, ConfigVariable* variable){
-    //szukanie istniejπcej linii
+    //szukanie istniejƒÖcej linii
     for(unsigned int i=0; i<lines->size(); i++){
         if(string_begins(lines->at(i), variable->name)){
-            //modyfikacja juø istniejacej linii
+            //modyfikacja ju≈º istniejacej linii
             lines->at(i) = variable->name + " = " + variable->value;
             return;
         }

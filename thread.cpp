@@ -6,7 +6,7 @@ DWORD WINAPI watek(void *args){
     Thread *thread = (Thread*)args;
     while(!thread->init) Sleep(1);
     thread->run();
-    IO::geti()->log("Pêtla w¹tku zakoñczona.");
+    IO::geti()->log("PÄ™tla wÄ…tku zakoÅ„czona.");
     //ExitThread(0);
     delete thread;
     return 0;
@@ -21,20 +21,20 @@ Thread::Thread(){
 Thread::~Thread(){
     //TerminateThread(thread_handle, 0);
     CloseHandle(thread_handle);
-    IO::geti()->log("W¹tek zakoñczony.");
+    IO::geti()->log("WÄ…tek zakoÅ„czony.");
 }
 
 
 volatile bool FileSearch::active = false;
 
 FileSearch::FileSearch(){
-    IO::geti()->log("W¹tek przeszukiwania plików zainicjowany.");
+    IO::geti()->log("WÄ…tek przeszukiwania plikÃ³w zainicjowany.");
     init = true;
 }
 
 FileSearch::~FileSearch(){
     FileSearch::active = false;
-    IO::geti()->log("W¹tek przeszukiwania plików zakoñczony.");
+    IO::geti()->log("WÄ…tek przeszukiwania plikÃ³w zakoÅ„czony.");
 }
 
 void FileSearch::run(){

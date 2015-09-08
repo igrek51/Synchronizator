@@ -37,7 +37,7 @@ void App::synchro_search(){
 	string drive = select_drive();
 	if(drive.length()==0) return;
 	if(zadania->size()>0) tasks_clear(zadania);
-	//dla kaødego synchronizowanego katalogu
+	//dla ka≈ºdego synchronizowanego katalogu
     stringstream ss;
 	for(unsigned int i=0; i<Config::geti()->synchropaths.size(); i++){
         string source = Config::geti()->synchropaths.at(i)->source;
@@ -51,9 +51,9 @@ void App::synchro_search(){
 	}
 	set_progress(1);
 	ss_clear(ss);
-	ss<<"ZakoÒczono przeszukiwanie.\r\n";
+	ss<<"Zako≈Ñczono przeszukiwanie.\r\n";
 	if(zadania->size()==0){
-		ss<<"Brak elementÛw do synchronizacji.";
+		ss<<"Brak element√≥w do synchronizacji.";
 	}else{
 		ss<<"Znalezione elementy synchronizacji: "<<zadania->size();
 	}
@@ -62,31 +62,33 @@ void App::synchro_search(){
 }
 
 void App::otworz_foldery(){
-    /*
-	int n = listbox_current();
-	if(n==-1){
-		IO::geti()->error("Nie wybrano elementu.");
-		return;
-	}
-	if(zadania->size()==0) return;
+    int n = listbox_current();
+    if(n==-1){
+        IO::geti()->error("Nie wybrano elementu.");
+        return;
+    }
+    if(zadania->size()==0) return;
     Task* task = zadania->at(n);
-    ShellExecuteA(NULL,NULL,"explorer.exe",task->dir1.c_str(),NULL,SW_SHOW);
-    ShellExecuteA(NULL,NULL,"explorer.exe",task->dir2.c_str(),NULL,SW_SHOW);
-    */
+    stringstream ss;
+    ss<<"thunar \""<<task->dir1.c_str()<<"\" &";
+    exec_cmd(ss.str());
+    ss_clear(ss);
+    ss<<"thunar \""<<task->dir2.c_str()<<"\" &";
+    exec_cmd(ss.str());
 }
 
 void App::viewer_open(string file){
-    /*
+    stringstream ss;
     if(Config::geti()->external_viewer.length()==0){
-        ShellExecuteA(NULL,"open",file.c_str(),NULL,NULL,SW_SHOW);
+        ss<<"gedit \""<<file<<"\" &";
+        exec_cmd(ss.str());
     }else{
-        ShellExecuteA(NULL,"open",Config::geti()->external_viewer.c_str(),file.c_str(),NULL,SW_SHOW);
+        ss<<"\""<<Config::geti()->external_viewer<<"\" \""<<file<<"\" &";
+        exec_cmd(ss.str());
     }
-    */
 }
 
 void App::otworz_pliki(){
-    /*
 	int n = listbox_current();
 	if(n==-1){
 		IO::geti()->error("Nie wybrano elementu.");
@@ -95,23 +97,21 @@ void App::otworz_pliki(){
     if(zadania->size()==0) return;
     Task* task = zadania->at(n);
     if(task->code!=TASK_INNY_ROZMIAR && task->code!=TASK_INNA_WERSJA){
-        IO::geti()->error("Funkcja niedostÍpna dla tych elementÛw.");
+        IO::geti()->error("Funkcja niedostƒôpna dla tych element√≥w.");
         return;
     }
     viewer_open(task->dir1+"\\"+task->filename);
     viewer_open(task->dir2+"\\"+task->filename);
     files_cmp(task->dir1+"\\"+task->filename, task->dir2+"\\"+task->filename, true);
-    Sleep(300);
-    SetForegroundWindow(main_window);
-    */
 }
 
 void App::pb_usun(){
     /*
-	if(FileSearch::active){
+    if(FileSearch::active){
 		IO::geti()->error("Trwa przeszukiwanie.");
 		return;
 	}
+    */
 	int cr=listbox_current();
 	if(cr==-1){
 		IO::geti()->error("Nie wybrano elementu.");
@@ -120,8 +120,7 @@ void App::pb_usun(){
     if(zadania->size()==0) return;
     zadania->erase(zadania->begin() + cr);
 	show_lista();
-    IO::geti()->echo("UsuniÍto element synchronizacji z listy.");
-    */
+    IO::geti()->echo("Usuniƒôto element synchronizacji z listy.");
 }
 
 void App::pb_odwroc(){
@@ -135,7 +134,7 @@ void App::pb_odwroc(){
     task->invert();
     show_lista();
     listbox_select(n);
-    IO::geti()->echo("OdwrÛcono kierunek synchronizacji dla wybranego elementu.");
+    IO::geti()->echo("Odwr√≥cono kierunek synchronizacji dla wybranego elementu.");
 }
 
 void App::wykonaj_1(){
@@ -144,6 +143,7 @@ void App::wykonaj_1(){
 		IO::geti()->error("Trwa przeszukiwanie.");
 		return;
 	}
+    */
 	int cr=listbox_current();
 	if(cr==-1){
 		IO::geti()->error("Nie wybrano elementu.");
@@ -155,7 +155,6 @@ void App::wykonaj_1(){
 	show_lista();
 	listbox_select(cr);
     IO::geti()->echo("Wykonano zadania 1 elementu synchronizacji.");
-    */
 }
 
 void App::wykonaj_wszystko(){
@@ -164,14 +163,14 @@ void App::wykonaj_wszystko(){
 		IO::geti()->error("Trwa przeszukiwanie.");
 		return;
 	}
-	IO::geti()->echo("Wykonywanie zadaÒ...");
+    */
+	IO::geti()->echo("Wykonywanie zada≈Ñ...");
 	if(zadania->size()==0){
-		IO::geti()->error("Lista zadaÒ jest pusta.");
+		IO::geti()->error("Lista zada≈Ñ jest pusta.");
 		return;
 	}
     execute_all_tasks(zadania);
     tasks_clear(zadania);
 	show_lista();
-	IO::geti()->echo("ZakoÒczono synchronizacjÍ.");
-    */
+	IO::geti()->echo("Zako≈Ñczono synchronizacjƒô.");
 }

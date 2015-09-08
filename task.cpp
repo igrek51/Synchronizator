@@ -13,8 +13,8 @@ string Task::name(){
 	if(code==TASK_BRAK_PLIKU) return "Brak pliku";
 	if(code==TASK_INNY_ROZMIAR) return "Inny rozmiar pliku";
 	if(code==TASK_INNA_WERSJA) return "Inna wersja pliku";
-	if(code==TASK_ZBEDNY_FOLDER) return "Zbêdny folder";
-	if(code==TASK_ZBEDNY_PLIK) return "Zbêdny plik";
+	if(code==TASK_ZBEDNY_FOLDER) return "ZbÄ™dny folder";
+	if(code==TASK_ZBEDNY_PLIK) return "ZbÄ™dny plik";
 	return "";
 }
 

@@ -57,13 +57,13 @@ bool files_cmp(string file1, string file2, bool out){
 	plik.seekg(0,plik.beg);
 	plik.read(plik2,fsize2);
 	plik.close();
-    //szczeg�y o r�nicach plik�w na output
+    //szczegóły o różnicach plików na output
     if(out){
         stringstream ss;
         if(fsize1==fsize2){
-            ss<<"Pliki o r�wnych rozmiarach,\r\n";
+            ss<<"Pliki o równych rozmiarach,\r\n";
         }else{
-            ss<<"Pliki o r�nych rozmiarach,\r\n";
+            ss<<"Pliki o różnych rozmiarach,\r\n";
         }
         int minsize=(fsize1>fsize2)?fsize2:fsize1;
         bool rowne = true;
@@ -78,15 +78,15 @@ bool files_cmp(string file1, string file2, bool out){
             }
             if(plik1[i]!=plik2[i]){
                 rowne=false;
-                ss<<"R�nica - bajt "<<i<<" (wiersz: "<<wiersz<<", znak: "<<znak_wiersza-1<<")";
+                ss<<"Różnica - bajt "<<i<<" (wiersz: "<<wiersz<<", znak: "<<znak_wiersza-1<<")";
                 break;
             }
         }
         if(rowne){
             if(fsize1==fsize2){
-                ss<<"Brak r�nicy zawarto�ci plik�w";
+                ss<<"Brak różnicy zawartości plików";
             }else{
-                ss<<"R�nica - bajt "<<minsize<<" (ostatni wiersz: "<<wiersz<<")";
+                ss<<"Różnica - bajt "<<minsize<<" (ostatni wiersz: "<<wiersz<<")";
             }
         }
         IO::geti()->echo(ss.str());
@@ -113,7 +113,7 @@ vector<string>* get_all_lines(string filename){
     string linia;
     do{
         getline(plik,linia,'\n');
-        //usuni�cie znak�w \r
+        //usunięcie znaków \r
         for(unsigned int i=0; i<linia.length(); i++){
             if(linia[i]=='\r'){
                 linia.erase(linia.begin()+i);
@@ -130,7 +130,7 @@ vector<string>* get_nonempty_lines(string filename){
     vector<string>* lines = get_all_lines(filename);
     if(lines==NULL) return NULL;
     for(unsigned int i=0; i<lines->size(); i++){
-        if(lines->at(i).length()==0){ //usuni�cie pustych element�w
+        if(lines->at(i).length()==0){ //usunięcie pustych elementów
             lines->erase(lines->begin()+i);
             i--;
         }
@@ -147,7 +147,7 @@ char* open_file(string filename, int &file_size){
 	fstream plik;
 	plik.open(filename.c_str(), fstream::in|fstream::binary);
 	if(!plik.good()){
-		IO::geti()->error("B��d otwarcia pliku");
+		IO::geti()->error("Błąd otwarcia pliku");
 		plik.close();
 		return NULL;
 	}
@@ -165,7 +165,7 @@ bool save_file(string filename, string content){
     fstream plik;
 	plik.open(filename.c_str(), fstream::out|fstream::binary);
 	if(!plik.good()){
-		IO::geti()->error("B��d �cie�ki pliku");
+		IO::geti()->error("Błąd ścieżki pliku");
 		plik.close();
 		return false;
 	}

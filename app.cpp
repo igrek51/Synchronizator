@@ -16,7 +16,6 @@ App::App(QWidget *parent) :
     historia = new History();
     zadania = new vector<Task*>;
     //filesearch = NULL;
-    event_init();
 }
 
 App::~App(){
@@ -25,7 +24,7 @@ App::~App(){
 		historia->save();
 	}
     Config::geti()->save_config();
-    IO::geti()->log("Sprz¹tanie...");
+    IO::geti()->log("SprzÄ…tanie...");
     //if(FileSearch::active) delete filesearch;
     tasks_clear(zadania);
     delete historia;
@@ -35,6 +34,3 @@ App::~App(){
     delete IO::geti();
 }
 
-void App::resizeEvent(QResizeEvent*){
-    event_resize();
-}

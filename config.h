@@ -32,7 +32,7 @@ public:
     void add_variable(vector<ConfigVariable*>* variables, string name, string value);
     void add_variable(vector<ConfigVariable*>* variables, string name, int value);
     void add_variable(vector<ConfigVariable*>* variables, string name, bool value);
-    //  Sta≥e
+    //  Sta≈Çe
     string program_name;
     string config_filename;
     string log_filename;

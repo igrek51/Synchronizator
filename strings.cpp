@@ -2,11 +2,11 @@
 #include <ctime>
 
 string trim_spaces(string s){
-    //obciêcie spacji na koñcu
+    //obciÄ™cie spacji na koÅ„cu
     while(s.length() > 0  && s[s.length()-1] == ' '){
         s = s.substr(0, s.length()-1);
     }
-    //obciêcie spacji na pocz¹tku
+    //obciÄ™cie spacji na poczÄ…tku
     while(s.length() > 0  && s[0] == ' '){
         s = s.substr(1);
     }
@@ -15,11 +15,11 @@ string trim_spaces(string s){
 
 string trim_quotes(string s){
     if(s.length()>=3){
-        //jeœli cudzys³owy s¹ na poczatku i na koñcu
+        //jeÅ›li cudzysÅ‚owy sÄ… na poczatku i na koÅ„cu
         if(s[0]=='\"' && s[s.length()-1]=='\"'){
-            //jeœli w ca³ym stringu znajduj¹ siê tylko 2 cudzys³owy
+            //jeÅ›li w caÅ‚ym stringu znajdujÄ… siÄ™ tylko 2 cudzysÅ‚owy
             if(s.substr(1, s.length()-2).find('\"')==string::npos){
-                s = s.substr(1, s.length()-2); //usuñ je
+                s = s.substr(1, s.length()-2); //usuÅ„ je
             }
         }
     }
@@ -28,15 +28,15 @@ string trim_quotes(string s){
 
 char to_lowercase(char in){
 	if(in>='A' && in<='Z') return in-'A'+'a';
-	if(in=='¥') return '¹';
-	if(in=='¯') return '¿';
-	if(in=='Œ') return 'œ';
-	if(in=='') return 'Ÿ';
-	if(in=='Ê') return 'ê';
-	if(in=='Æ') return 'æ';
-	if(in=='Ñ') return 'ñ';
-	if(in=='Ó') return 'ó';
-	if(in=='£') return '³';
+	if(in=='Ä„') return 'Ä…';
+	if(in=='Å»') return 'Å¼';
+	if(in=='Åš') return 'Å›';
+	if(in=='Å¹') return 'Åº';
+	if(in=='Ä˜') return 'Ä™';
+	if(in=='Ä†') return 'Ä‡';
+	if(in=='Åƒ') return 'Å„';
+	if(in=='Ã“') return 'Ã³';
+	if(in=='Å') return 'Å‚';
 	return in;
 }
 

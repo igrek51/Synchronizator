@@ -22,12 +22,12 @@ void History::add_with_time(string txt){
 }
 
 void History::load(){
-    IO::geti()->log("Odczytywanie historii poleceÒ...");
+    IO::geti()->log("Odczytywanie historii polece≈Ñ...");
     history = get_nonempty_lines(Config::geti()->history_filename);
 }
 
 bool History::save(){
-    IO::geti()->log("Zapisywanie historii poleceÒ...");
+    IO::geti()->log("Zapisywanie historii polece≈Ñ...");
     stringstream ss;
     for(unsigned int i=0; i<history->size(); i++){
         ss<<history->at(i)<<endl;
@@ -37,7 +37,7 @@ bool History::save(){
 
 void History::truncate(unsigned int remains){
     stringstream ss;
-    ss<<"Usuwanie starej historii poleceÒ (liczba poleceÒ: "<<history->size()<<", ograniczenie: "<<remains<<")";
+    ss<<"Usuwanie starej historii polece≈Ñ (liczba polece≈Ñ: "<<history->size()<<", ograniczenie: "<<remains<<")";
     IO::geti()->log(ss.str());
     while(history->size() > remains){
         history->erase(history->begin());

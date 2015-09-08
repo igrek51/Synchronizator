@@ -4,7 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <QWidget>
-#include <QVBoxLayout>
+#include <QLayout>
 
 using namespace std;
 
@@ -24,14 +24,16 @@ public:
     static Controls* geti();
     ~Controls();
     vector<Control*> controls;
-    QVBoxLayout* layout;
+    QGridLayout* layout;
     QWidget* central_widget;
     //  Wyszukiwanie kontrolek
     Control* find_control(string name);
     QWidget* find(string name);
     bool exists(string name);
     string get_button_name(int button_nr);
+    string get_object_name(QObject* o);
     //  Tworzenie nowych kontrolek
+    void add_control(QWidget* handle, string name);
     void create_button(string text, string name = "");
     void create_button_multiline(string text, string name = "");
     void create_edit(string text, string name = "");
@@ -41,7 +43,7 @@ public:
     void create_groupbox(string text, string name = "");
     void create_progressbar(string name);
     void create_table(string name);
-    //  Zawartoœæ
+    //  ZawartoÅ›Ä‡
     void set_text(string control_name, string text = "");
     void set_text(string control_name, int number);
     string get_text(string control_name);
@@ -52,6 +54,8 @@ public:
     //  Zmiana czcionki
     void set_font(QWidget* handle, string fontface, int fontsize);
     void set_font(string name, string fontface, int fontsize);
+    //  Subclassing
+    void subclass(string name, QObject* event_listener);
 };
 
 #endif

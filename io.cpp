@@ -24,13 +24,13 @@ IO::IO(){
 void IO::clear_log(){
     if(!Config::geti()->log_enabled) return;
     clear_file(Config::geti()->log_filename);
-    //w≥πczenie moøliwoúci zapisu do loga
+    //w≈ÇƒÖczenie mo≈ºliwo≈õci zapisu do loga
     log_init = true;
-    log("Dziennik zdarzeÒ uruchomiony.");
+    log("Dziennik zdarze≈Ñ uruchomiony.");
     if(log_buffer.size()>0){
-        log("Wpisywanie starych zdarzeÒ do dziennika...");
+        log("Wpisywanie starych zdarze≈Ñ do dziennika...");
         for(unsigned int i=0; i<log_buffer.size(); i++){
-            log(log_buffer.at(i)); //zapisanie starych logÛw
+            log(log_buffer.at(i)); //zapisanie starych log√≥w
         }
         log_buffer.clear();
     }
@@ -47,7 +47,7 @@ void IO::log(string l){
     plik.open(Config::geti()->log_filename.c_str(), fstream::out|fstream::app);
     if(!plik.good()){
         plik.close();
-        message_box("B≥πd", "B≥πd zapisu do pliku dziennika: "+Config::geti()->log_filename);
+        message_box("B≈ÇƒÖd", "B≈ÇƒÖd zapisu do pliku dziennika: "+Config::geti()->log_filename);
         return;
     }
     plik<<get_time()<<" - "<<l<<endl;
@@ -68,15 +68,15 @@ void IO::log(string s, int l){
 
 void IO::error(string l, bool show_output){
     if(show_output && Controls::geti()->exists(Config::geti()->output_control)){
-        echo("[B£•D!] - "+l);
+        echo("[B≈ÅƒÑD!] - "+l);
     }else{
-        log("[B£•D!] - "+l);
+        log("[B≈ÅƒÑD!] - "+l);
     }
 }
 
 void IO::critical_error(string l){
-    log("[B£•D KRYTYCZNY!] - "+l);
-    message_box("B≥πd krytyczny", l);
+    log("[B≈ÅƒÑD KRYTYCZNY!] - "+l);
+    message_box("B≈ÇƒÖd krytyczny", l);
 }
 
 
@@ -95,7 +95,7 @@ void IO::echo(int e){
 void IO::message_box(string title, string message){
     if(message.length()==0){
         message = title;
-        title = "WiadomoúÊ";
+        title = "Wiadomo≈õƒá";
     }
     QMessageBox msgBox;
     msgBox.setText(message.c_str());
