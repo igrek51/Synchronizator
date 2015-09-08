@@ -176,7 +176,7 @@ bool save_file(string filename, string content){
 
 File* file_search(vector<File*>* files, string name){
     for(unsigned int i=0; i<files->size(); i++){
-        if(string_compare_lower(files->at(i)->name, name)){
+        if(string_compare(files->at(i)->name, name)){
             return files->at(i);
         }
     }

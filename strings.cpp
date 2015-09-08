@@ -26,24 +26,11 @@ string trim_quotes(string s){
     return s;
 }
 
-char to_lowercase(char in){
-	if(in>='A' && in<='Z') return in-'A'+'a';
-	if(in=='Ą') return 'ą';
-	if(in=='Ż') return 'ż';
-	if(in=='Ś') return 'ś';
-	if(in=='Ź') return 'ź';
-	if(in=='Ę') return 'ę';
-	if(in=='Ć') return 'ć';
-	if(in=='Ń') return 'ń';
-	if(in=='Ó') return 'ó';
-	if(in=='Ł') return 'ł';
-	return in;
-}
-
-bool string_compare_lower(string s1, string s2){
+bool string_compare(string s1, string s2){
 	if(s1.length()!=s1.length()) return false;
 	for(unsigned int i=0; i<s1.length(); i++){
-		if(to_lowercase(s1[i])!=to_lowercase(s2[i])) return false;
+        //if(to_lowercase(s1[i])!=to_lowercase(s2[i])) return false;
+        if(s1[i] != s2[i]) return false;
 	}
 	return true;
 }
