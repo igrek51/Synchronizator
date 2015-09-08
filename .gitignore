@@ -4,3 +4,5 @@ prv
 Synchronizator.pro.user
 bin/log.txt
 bin/history.txt
+bin/linux/log.txt
+bin/linux/history.txt
