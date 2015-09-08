@@ -53,6 +53,7 @@ public:
 	int listbox_current();
 	void listbox_select(int nr);
 	void listbox_clicked();
+
 	//wątki
     void filesearch_start();
     //FileSearch* filesearch;
@@ -62,6 +63,8 @@ public:
     void moveEvent(QMoveEvent*);
     void closeEvent(QCloseEvent*);
     bool eventFilter(QObject* object, QEvent* event);
+private slots:
+    void listbox_click(int, int);
 };
 
 #endif

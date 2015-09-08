@@ -6,7 +6,15 @@
 void App::listbox_init(){
     QTableWidget* listbox = dynamic_cast<QTableWidget*>(Controls::geti()->find("listbox"));
     for(int i=0; i<2; i++) listbox->insertColumn(0);
-    listbox->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    QHeaderView* header_h = listbox->horizontalHeader();
+    QHeaderView* header_v = listbox->verticalHeader();
+    header_h->setSectionResizeMode(QHeaderView::ResizeToContents);
+    header_h->setVisible(false);
+    header_v->setVisible(false);
+    header_v->setDefaultSectionSize(23);
+    listbox->setSelectionMode(QAbstractItemView::SingleSelection);
+    //qheader->resizeSection(0,100);
+    //qheader->resizeSection(1,75);
 }
 
 int App::listbox_count(){
@@ -61,10 +69,14 @@ void App::listbox_clicked(){
     stringstream ss;
     Task* task = zadania->at(n);
     vector<string>* cmds = task->cmds();
-    ss<<"Zadania dla elementu "<<task->dir2<<"\\"<<task->filename<<" ["<<cmds->size()<<"]:\r\n";
+    ss<<"Zadania dla elementu "<<task->dir2<<"/"<<task->filename<<" ["<<cmds->size()<<"]:\r\n";
     for(unsigned int i=0; i<cmds->size(); i++){
         ss<<cmds->at(i);
         if(i<cmds->size()-1) ss<<"\r\n";
     }
     IO::geti()->echo(ss.str());
+}
+
+void App::listbox_click(int, int){
+   listbox_clicked();
 }

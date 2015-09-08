@@ -100,9 +100,9 @@ void App::otworz_pliki(){
         IO::geti()->error("Funkcja niedostępna dla tych elementów.");
         return;
     }
-    viewer_open(task->dir1+"\\"+task->filename);
-    viewer_open(task->dir2+"\\"+task->filename);
-    files_cmp(task->dir1+"\\"+task->filename, task->dir2+"\\"+task->filename, true);
+    viewer_open(task->dir1+"/"+task->filename);
+    viewer_open(task->dir2+"/"+task->filename);
+    files_cmp(task->dir1+"/"+task->filename, task->dir2+"/"+task->filename, true);
 }
 
 void App::pb_usun(){

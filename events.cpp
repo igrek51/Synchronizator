@@ -1,4 +1,5 @@
 #include "app.h"
+#include "strings.h"
 #include <QEvent>
 
 void App::event_init(){
@@ -35,17 +36,20 @@ void App::event_init(){
     Controls::geti()->subclass("odwroc", this);
     Controls::geti()->subclass("wykonaj1", this);
     Controls::geti()->subclass("wykonaj", this);
-    Controls::geti()->subclass("listbox", this);
-    //ustawiona pozycja, rozmiar okna
-    if(Config::geti()->save_wnd_pos==1){
-        this->move(Config::geti()->wnd_pos_x, Config::geti()->wnd_pos_y);
-    }
+    connect(Controls::geti()->find("listbox"), SIGNAL(cellClicked(int,int)), this, SLOT(listbox_click(int,int)));
+    //listbox
+    listbox_init();
+    //ustawiony rozmiar okna
     if(Config::geti()->save_wnd_size==1){
         this->resize(Config::geti()->window_w, Config::geti()->window_h);
     }else{
         this->resize(Config::geti()->window_w, Config::geti()->window_h);
     }
     event_resize();
+    //ustawiona pozycja
+    if(Config::geti()->save_wnd_pos==1){
+        this->move(Config::geti()->wnd_pos_x, Config::geti()->wnd_pos_y);
+    }
     //progress bar
 	set_progress(0);
     //tytuł
@@ -55,11 +59,6 @@ void App::event_init(){
 
 void App::event_button(string name){
     if(name.length()==0) return;
-    //zmieniony listbox
-    if(name=="listbox"){
-        listbox_clicked();
-        return;
-    }
 	//przyciski
 	if(name=="szukaj"){ //szukaj
         //filesearch_start();
@@ -106,8 +105,12 @@ void App::event_resize(){
 
 void App::event_move(){
     IO::geti()->log("Przemieszczenie okna");
-    Config::geti()->wnd_pos_x = this->pos().x();
-    Config::geti()->wnd_pos_y = this->pos().y();
+    if(!Controls::geti()->exists("info")){
+        IO::geti()->log("Brak kontrolki: info");
+        return;
+    }
+    Config::geti()->wnd_pos_x = this->geometry().x();
+    Config::geti()->wnd_pos_y = this->geometry().y();
 }
 
 

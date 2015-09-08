@@ -222,7 +222,7 @@ vector<string>* get_drives(){
         const char *fname = fileInfo.fileName().toStdString().c_str();
         if(strcmp(fname,".")==0) continue;
         if(strcmp(fname,"..")==0) continue;
-        drives->push_back("/media/igrek/"+fileInfo.fileName().toStdString());
+        drives->push_back("/media/igrek/"+fileInfo.fileName().toStdString()+"/");
     }
     return drives;
 }

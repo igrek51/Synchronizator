@@ -130,6 +130,7 @@ void Controls::create_static(string text, string name){
 
 void Controls::create_static_center(string text, string name){
     QLabel* nowy_widget = new QLabel(text.c_str());
+    nowy_widget->setAlignment(Qt::AlignCenter);
     add_control(nowy_widget, name);
 }
 

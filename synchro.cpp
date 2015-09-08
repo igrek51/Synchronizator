@@ -88,7 +88,7 @@ void dirlist_cmp(string head1name, string head2name, bool content_check, double 
                     double progress1 = (prog_to-prog_from)*i/dir1->size()+prog_from;
                     double progress2 = (prog_to-prog_from)*(i+1)/dir1->size()+prog_from;
                     //rekurencja
-					dirlist_cmp(head1name+"\\"+wzor->name,head2name+"\\"+wzor->name,content_check,progress1, progress2);
+                    dirlist_cmp(head1name+"/"+wzor->name,head2name+"/"+wzor->name,content_check,progress1, progress2);
 				}
 			}
 		}else{ //plik
@@ -99,7 +99,7 @@ void dirlist_cmp(string head1name, string head2name, bool content_check, double 
                     add_task(wzor->name,head1name,head2name,TASK_INNY_ROZMIAR);
 				}else{
 					if(content_check){
-						if(!files_cmp(head1name+"\\"+wzor->name,head2name+"\\"+wzor->name)){
+                        if(!files_cmp(head1name+"/"+wzor->name,head2name+"/"+wzor->name)){
                             add_task(wzor->name,head1name,head2name,TASK_INNA_WERSJA);
 						}
 					}
