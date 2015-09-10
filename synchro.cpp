@@ -13,6 +13,11 @@ SynchroPath::SynchroPath(string source, string dest, bool content_check){
 
 string select_drive(){
     vector<string>* drives = get_drives();
+    if(drives->size()==0){
+        IO::geti()->error("Brak dostêpnych dysków.");
+        delete drives;
+        return "";
+    }
 	string selected_drive = "";
 	if(Config::geti()->synchropaths.size()==0){
 		IO::geti()->error("Nie wybrano synchronizowanych folderów.");
@@ -48,12 +53,10 @@ string select_drive(){
 		ss_clear(ss);
 		ss<<"Nie znaleziono odpowiedniego dysku.\r\n";
 		ss<<"Dostêpne dyski: ";
-        vector<string>* drives = get_drives();
         for(unsigned int i=0; i<drives->size(); i++){
             ss<<drives->at(i);
             if(i<drives->size()-1) ss<<", ";
         }
-        delete drives;
 		IO::geti()->error(ss.str());
         delete drives;
 		return "";
