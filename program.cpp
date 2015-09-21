@@ -41,7 +41,7 @@ void App::synchro_search(){
         double prog_from = double(i)/Config::geti()->synchropaths.size();
         double prog_to = double(i+1)/Config::geti()->synchropaths.size();
         ss_clear(ss);
-		ss<<"Przeszukiwanie folderu \""<<drive<<dest<<"\"...";
+		ss<<"Przeszukiwanie folderu \""<<dest<<"\"...";
 		IO::geti()->echo(ss.str());
 		dirlist_cmp(source, dest, Config::geti()->synchropaths.at(i)->content_check?true:false, prog_from, prog_to);
 	}
