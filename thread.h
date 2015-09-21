@@ -3,17 +3,40 @@
 
 #include <windows.h>
 
-class Thread{
+DWORD WINAPI thread_start_routine(void *args);
+
+class Thread {
 public:
     Thread();
     virtual ~Thread();
-    virtual void run() = 0;
-    volatile bool init;
-private:
-    HANDLE thread_handle;
+    virtual void execute() = 0;
+    volatile bool init; //zakoñczono inicjalizacjê
+    volatile bool close; //polecenie zamykania
+protected:
+    HANDLE handle;
 };
 
-class FileSearch : public Thread {
+class SingleThread : public Thread {
+public:
+    virtual ~SingleThread();
+    virtual void run() = 0;
+private:
+    void execute();
+};
+
+class ContinuousThread : public Thread {
+public:
+    ContinuousThread(int wait_for_close = 0);
+    virtual ~ContinuousThread();
+    virtual void run() = 0;
+private:
+    void execute();
+    int wait_for_close;
+    volatile bool closed; //zakoñczono wykonywanie funkcji run()
+};
+
+
+class FileSearch : public SingleThread {
 public:
     FileSearch();
     ~FileSearch();
