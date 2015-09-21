@@ -90,11 +90,29 @@ void tasks_clear(vector<Task*>* tasks){
 
 void App::exec_cmd(string l){
 	IO::geti()->log("Wykonywanie: "+l);
+    SHELLEXECUTEINFO ShExecInfo = {0};
+    ShExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
+    ShExecInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
+    ShExecInfo.hwnd = main_window;
+    ShExecInfo.lpVerb = "open";
+    ShExecInfo.lpFile = "cmd.exe";
+    ShExecInfo.lpParameters = ("/c \""+l+"\"").c_str();
+    ShExecInfo.lpDirectory = NULL;
+    ShExecInfo.nShow = SW_HIDE;
+    ShExecInfo.hInstApp = NULL;
+    if(!ShellExecuteEx(&ShExecInfo)){
+        IO::geti()->error("Blad polecenia: "+l);
+        return;
+    }
+    WaitForSingleObject(ShExecInfo.hProcess, INFINITE);
+    historia->add_with_time(l);
+    /*
     if(system(l.c_str())==0){
         historia->add_with_time(l);
     }else{
         IO::geti()->error("Blad polecenia: "+l);
     }
+    */
 }
 
 void App::execute_all_tasks(vector<Task*>* zadania){
